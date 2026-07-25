@@ -1,7 +1,7 @@
 import { getVocation, type Combatant, type Doctrine, type TargetPriority } from '@covil/core';
 import { useMemo } from 'react';
 
-import { getSprite } from '../game/sprites';
+import { getSpriteDataUrl } from '../game/atlas';
 import type { ArenaSnapshot } from '../game/useArena';
 
 interface PartyScreenProps {
@@ -45,7 +45,7 @@ function MemberCard({
   onChange: (patch: Partial<Doctrine>) => void;
 }) {
   const vocation = member.vocation ? getVocation(member.vocation) : null;
-  const avatar = useMemo(() => getSprite(member.sprite, 3)?.toDataURL() ?? '', [member.sprite]);
+  const avatar = useMemo(() => getSpriteDataUrl(member.sprite, 2), [member.sprite]);
 
   return (
     <section className="card">

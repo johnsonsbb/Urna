@@ -1,6 +1,6 @@
 import { TICK_MS, terrainAt, type Combatant, type Fx, type Grid, type SimState } from '@covil/core';
 
-import { getSprite, getSpriteFlash } from './sprites';
+import { ATLAS_FRAMES, getFlashFrame, getFrame } from './atlas';
 
 /** Lado do tile em pixels lógicos. Toda a cena é desenhada nessa unidade. */
 export const TILE = 32;
@@ -179,23 +179,30 @@ function collectFlashes(fx: readonly Fx[], nowMs: number): Map<string, number> {
   return flashes;
 }
 
+/** Quadro da caminhada: parado usa o primeiro, andando percorre o ciclo. */
+function walkFrame(c: Combatant, alpha: number): number {
+  if (!c.moveFrom) return 0;
+  const extra = alpha * (TICK_MS / Math.max(TICK_MS, c.moveDurationMs));
+  const t = Math.min(1, c.moveProgress + extra);
+  return Math.floor(t * ATLAS_FRAMES) % ATLAS_FRAMES;
+}
+
 function drawCombatant(
   ctx: CanvasRenderingContext2D,
   c: Combatant,
   alpha: number,
   flash: number,
 ): void {
-  const sprite = getSprite(c.sprite, 2);
-  if (!sprite) return;
+  const frameIndex = walkFrame(c, alpha);
+  const frame = getFrame(c.sprite, frameIndex);
 
   const base = screenPos(c, alpha);
+  const scale = c.scale ?? 1;
+  const size = TILE * scale;
   // Tremida ao apanhar: 2px que fazem o golpe parecer ter peso.
   const shake = flash > 0 ? Math.round(Math.sin(flash * 24) * 2) : 0;
-  const scale = c.scale ?? 1;
-  const width = sprite.width * scale;
-  const height = sprite.height * scale;
-  const x = base.x + (TILE - width) / 2 + shake;
-  const y = base.y + (TILE - height) - 2;
+  const x = base.x + (TILE - size) / 2 + shake;
+  const y = base.y + (TILE - size) - 2;
 
   if (!c.alive) {
     const fade = Math.max(0, Math.min(1, c.corpseMs / CORPSE_MS));
@@ -204,20 +211,24 @@ function drawCombatant(
     ctx.beginPath();
     ctx.ellipse(base.x + TILE / 2, base.y + TILE - 6, 11, 5, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.globalAlpha = fade * 0.4;
-    ctx.drawImage(sprite, x, y + 6, width, height);
+    if (frame) {
+      ctx.globalAlpha = fade * 0.4;
+      ctx.drawImage(frame.image, frame.sx, frame.sy, frame.size, frame.size, x, y + 6, size, size);
+    }
     ctx.globalAlpha = 1;
     return;
   }
 
-  ctx.drawImage(sprite, x, y, width, height);
+  if (frame) {
+    ctx.drawImage(frame.image, frame.sx, frame.sy, frame.size, frame.size, x, y, size, size);
 
-  if (flash > 0) {
-    const flashSprite = getSpriteFlash(c.sprite, 2);
-    if (flashSprite) {
-      ctx.globalAlpha = flash * 0.75;
-      ctx.drawImage(flashSprite, x, y, width, height);
-      ctx.globalAlpha = 1;
+    if (flash > 0) {
+      const flashFrame = getFlashFrame(c.sprite, frameIndex);
+      if (flashFrame) {
+        ctx.globalAlpha = flash * 0.75;
+        ctx.drawImage(flashFrame, x, y, size, size);
+        ctx.globalAlpha = 1;
+      }
     }
   }
 

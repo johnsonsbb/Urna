@@ -1,7 +1,7 @@
 import { ARENAS, formatDuration, formatNumber, type Combatant } from '@covil/core';
 import { useMemo, type RefObject } from 'react';
 
-import { getSprite } from '../game/sprites';
+import { getSpriteDataUrl } from '../game/atlas';
 import type { ArenaSnapshot } from '../game/useArena';
 import { IconPause, IconPlay, IconRestart } from './Icons';
 import { WaveTrack } from './WaveTrack';
@@ -180,7 +180,7 @@ export function ArenaScreen({
 function MemberBars({ member }: { member: Combatant }) {
   const hpPct = Math.max(0, (member.hp / member.maxHp) * 100);
   const manaPct = member.maxMana > 0 ? Math.max(0, (member.mana / member.maxMana) * 100) : 0;
-  const avatar = useMemo(() => getSprite(member.sprite, 3)?.toDataURL() ?? '', [member.sprite]);
+  const avatar = useMemo(() => getSpriteDataUrl(member.sprite, 2), [member.sprite]);
 
   return (
     <div className={'member' + (member.alive ? '' : ' member--down')}>
