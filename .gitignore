@@ -10,7 +10,9 @@ coverage/
 *.sqlite-journal
 *.sqlite-wal
 *.sqlite-shm
-data/
+# Barra inicial obrigatória: sem ela o padrão casa com QUALQUER diretório
+# chamado "data" — inclusive packages/core/src/data, que é código do jogo.
+/data/
 
 # variáveis de ambiente
 .env
