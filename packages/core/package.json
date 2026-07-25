@@ -1,8 +1,8 @@
 {
-  "name": "@urna/core",
+  "name": "@covil/core",
   "version": "0.1.0",
   "private": true,
-  "description": "Engine determinística do Urna: tipos, fórmulas, dados de jogo e simulação de combate idle",
+  "description": "Engine determinística do Covil: tipos, fórmulas, dados de jogo e simulação de combate idle",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

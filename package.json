@@ -1,19 +1,19 @@
 {
-  "name": "urna",
+  "name": "covil",
   "private": true,
   "version": "0.1.0",
-  "description": "Urna — idle MMORPG de navegador, estilo Tibia, com backend autoritativo e PWA instalável",
+  "description": "Covil — idle MMORPG de navegador, estilo Tibia, com backend autoritativo e PWA instalável",
   "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=22.5.0"
   },
   "scripts": {
-    "build:core": "pnpm --filter @urna/core build",
+    "build:core": "pnpm --filter @covil/core build",
     "dev": "pnpm build:core && pnpm -r --parallel dev",
-    "dev:server": "pnpm build:core && pnpm --filter @urna/server dev",
-    "dev:web": "pnpm build:core && pnpm --filter @urna/web dev",
-    "build": "pnpm build:core && pnpm --filter @urna/server build && pnpm --filter @urna/web build",
-    "start": "pnpm --filter @urna/server start",
+    "dev:server": "pnpm build:core && pnpm --filter @covil/server dev",
+    "dev:web": "pnpm build:core && pnpm --filter @covil/web dev",
+    "build": "pnpm build:core && pnpm --filter @covil/server build && pnpm --filter @covil/web build",
+    "start": "pnpm --filter @covil/server start",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "icons": "node scripts/gen-icons.mjs"
