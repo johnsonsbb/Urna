@@ -1,0 +1,23 @@
+node_modules/
+dist/
+build/
+coverage/
+*.log
+.DS_Store
+
+# banco de dados local do servidor
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+data/
+
+# variáveis de ambiente
+.env
+.env.local
+.env.*.local
+
+# caches de ferramentas
+.vite/
+.turbo/
+*.tsbuildinfo
