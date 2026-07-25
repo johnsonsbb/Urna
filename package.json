@@ -7,6 +7,9 @@
   "engines": {
     "node": ">=22.5.0"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
   "scripts": {
     "build:core": "pnpm --filter @covil/core build",
     "dev": "pnpm build:core && pnpm -r --parallel dev",

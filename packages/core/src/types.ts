@@ -1,258 +1,272 @@
 /** Tipos compartilhados entre engine, servidor e cliente. */
 
-export type Vocation = 'knight' | 'paladin' | 'druid' | 'sorcerer';
+export type Vocation = 'knight' | 'paladin' | 'sorcerer' | 'druid';
+
+export type Side = 'party' | 'monster';
 
 export type SkillId = 'melee' | 'distance' | 'magic' | 'shielding';
 
-export type EquipSlot =
-  | 'helmet'
-  | 'amulet'
-  | 'weapon'
-  | 'shield'
-  | 'armor'
-  | 'ring'
-  | 'legs'
-  | 'boots';
+export type Facing = 'norte' | 'sul' | 'leste' | 'oeste';
 
-export type Rarity = 'comum' | 'incomum' | 'raro' | 'epico' | 'lendario';
-
-export type ItemKind = EquipSlot | 'potion' | 'loot';
-
-export interface HealEffect {
-  hp?: number;
-  mana?: number;
+export interface Vec2 {
+  x: number;
+  y: number;
 }
 
-export interface ItemDef {
+// ---------------------------------------------------------------------------
+// Doutrina — a agência do jogador sobre o combate, definida antes da caçada
+// ---------------------------------------------------------------------------
+
+export type BattleLine = 'frente' | 'meio' | 'tras';
+
+export type TargetPriority =
+  | 'mais-proximo'
+  | 'mais-fraco'
+  | 'mais-forte'
+  | 'conjurador';
+
+export interface Doctrine {
+  /** Onde o personagem tenta se posicionar em relação aos inimigos. */
+  line: BattleLine;
+  targetPriority: TargetPriority;
+  /** Distância que tenta manter do alvo, em tiles. */
+  engageDistance: number;
+  /** Bebe poção de vida abaixo desta % de vida. */
+  potionBelowPct: number;
+  /** Bebe poção de mana abaixo desta % de mana. */
+  manaPotionBelowPct: number;
+  /** O druida cura um aliado abaixo desta % de vida. */
+  healAllyBelowPct: number;
+}
+
+// ---------------------------------------------------------------------------
+// Magias
+// ---------------------------------------------------------------------------
+
+/**
+ * Matriz de área, no mesmo formato do TFS:
+ *   0 = tile não atingido
+ *   1 = tile atingido
+ *   2 = origem (conjurador ou alvo, conforme `origin`)
+ */
+export type AreaPattern = readonly (readonly number[])[];
+
+export interface SpellDef {
   id: string;
   name: string;
-  kind: ItemKind;
-  rarity: Rarity;
-  /** Slot de equipamento; ausente em poções e itens de loot. */
-  slot?: EquipSlot;
-  attack?: number;
-  /** Defesa da arma/escudo — alimenta a chance de bloqueio. */
-  defense?: number;
-  /** Redução de dano físico. */
-  armor?: number;
-  /** Bônus de magic level concedido pelo item. */
-  magicBonus?: number;
-  /** Intervalo entre golpes da arma. Sem arma, usa o padrão de punho. */
-  attackSpeedMs?: number;
-  /** Arma de longo alcance: usa a skill `distance`. */
-  ranged?: boolean;
-  twoHanded?: boolean;
-  heal?: HealEffect;
-  /** Peso unitário em oz. */
-  weight: number;
-  /** Quanto o NPC paga por unidade. */
-  value: number;
-  /** Preço de compra no NPC. Ausente = não vendido em loja. */
-  shopPrice?: number;
-  stackable?: boolean;
-  levelReq?: number;
-  /** Restrição de vocação. Ausente = livre para todas. */
-  vocations?: readonly Vocation[];
-  description?: string;
+  /** Palavras mágicas exibidas sobre o personagem ao conjurar. */
+  words: string;
+  kind: 'dano' | 'cura';
+  manaCost: number;
+  cooldownMs: number;
+  levelReq: number;
+  /** Alcance máximo em tiles até o alvo. */
+  range: number;
+  /** A matriz é centrada no conjurador ou no alvo? */
+  origin: 'conjurador' | 'alvo';
+  area: AreaPattern;
+  /** Dano/cura base, antes do escalonamento por nível e magic level. */
+  baseMin: number;
+  baseMax: number;
+  /** Identificador do efeito visual. */
+  effect: string;
+  /** Projétil disparado até o alvo, se houver. */
+  missile?: string;
 }
 
-export interface LootEntry {
-  itemId: string;
-  /** Probabilidade por abate, 0..1. */
-  chance: number;
-  min?: number;
-  max?: number;
+// ---------------------------------------------------------------------------
+// Vocações e monstros
+// ---------------------------------------------------------------------------
+
+export interface VocationDef {
+  id: Vocation;
+  name: string;
+  role: 'tank' | 'dano' | 'suporte';
+  description: string;
+  baseHp: number;
+  baseMana: number;
+  hpPerLevel: number;
+  manaPerLevel: number;
+  /** Alcance do ataque básico, em tiles. */
+  attackRange: number;
+  attackSpeedMs: number;
+  /** Tempo para andar um tile. */
+  moveSpeedMs: number;
+  /** Multiplicadores de dano por fonte. */
+  meleeMod: number;
+  distanceMod: number;
+  spellMod: number;
+  baseArmor: number;
+  spells: readonly string[];
+  defaultDoctrine: Doctrine;
+  sprite: string;
 }
 
 export interface MonsterDef {
   id: string;
   name: string;
   hp: number;
-  /** Dano máximo por golpe antes da armadura. */
-  attack: number;
-  /** Armadura da criatura, reduz o dano recebido. */
+  attackMin: number;
+  attackMax: number;
   armor: number;
+  attackRange: number;
   attackSpeedMs: number;
+  moveSpeedMs: number;
   exp: number;
-  loot: readonly LootEntry[];
+  gold: [number, number];
+  sprite: string;
+  /** Monstro maior ocupa mais espaço visual (1 = 1 tile). */
+  scale?: number;
 }
 
-export interface AreaDef {
+// ---------------------------------------------------------------------------
+// Arena
+// ---------------------------------------------------------------------------
+
+export type TileKind = 'chao' | 'parede' | 'agua' | 'decoracao';
+
+export interface ArenaDef {
   id: string;
   name: string;
-  description: string;
-  levelReq: number;
-  /** Pool de criaturas com pesos relativos de spawn. */
-  monsters: readonly { monsterId: string; weight: number }[];
-  /** Tempo entre um abate e o próximo spawn. */
-  respawnMs: number;
+  width: number;
+  height: number;
+  /**
+   * Layout em texto, uma string por linha:
+   *   '.' chão   '#' parede   '~' água   ',' decoração (andável)
+   *   'P' spawn do grupo      'M' spawn de monstro
+   */
+  layout: readonly string[];
+  /** Paleta de cores do piso, usada pelo renderizador. */
+  theme: 'areia' | 'grama' | 'caverna';
+  waves: readonly WaveDef[];
 }
 
-export interface VocationDef {
-  id: Vocation;
-  name: string;
-  description: string;
-  baseHp: number;
-  baseMana: number;
-  baseCapacity: number;
-  hpPerLevel: number;
-  manaPerLevel: number;
-  capacityPerLevel: number;
-  /** Multiplicadores de dano por fonte. */
-  meleeMod: number;
-  distanceMod: number;
-  spellMod: number;
-  /** Quanto mais alto, mais lento o avanço da skill. */
-  skillFactors: Record<SkillId, number>;
-  /** Regeneração base, em pontos por segundo. */
-  hpRegen: number;
-  manaRegen: number;
-  /** Magia de ataque desbloqueada pela vocação. */
-  spell: SpellDef | null;
-  /** Equipamento inicial (ids de item). */
-  startingEquipment: readonly string[];
+export interface WaveDef {
+  /** Criaturas da onda: id do monstro e quantidade. */
+  spawns: readonly { monsterId: string; count: number }[];
+  boss?: boolean;
 }
 
-export interface SpellDef {
+// ---------------------------------------------------------------------------
+// Combatente
+// ---------------------------------------------------------------------------
+
+export interface Combatant {
   id: string;
+  side: Side;
   name: string;
-  manaCost: number;
-  cooldownMs: number;
-  levelReq: number;
-}
-
-export interface ItemStack {
-  itemId: string;
-  qty: number;
-}
-
-export interface CharacterSkills {
-  melee: number;
-  distance: number;
-  magic: number;
-  shielding: number;
-}
-
-export interface CharacterSettings {
-  /** Bebe poção de vida quando a vida cai abaixo desta porcentagem (0..100). */
-  autoPotionHpPct: number;
-  /** Recolhe apenas loot desta raridade ou superior. */
-  autoLootMinRarity: Rarity;
-  /** Usa a magia de ataque da vocação quando houver mana. */
-  useSpells: boolean;
-}
-
-export interface CombatState {
-  /** Criatura em combate, ou `null` durante respawn/descanso. */
-  monsterId: string | null;
-  monsterHp: number;
-  monsterMaxHp: number;
-  /** Cooldowns restantes em ms. */
-  playerCdMs: number;
-  monsterCdMs: number;
-  spellCdMs: number;
-  respawnMs: number;
-  /** Personagem recuando para a cidade para se curar. */
-  resting: boolean;
-  restMs: number;
-}
-
-export interface CharacterTotals {
-  kills: number;
-  deaths: number;
-  expEarned: number;
-  goldEarned: number;
-  /** Tempo total caçando, em ms. */
-  huntedMs: number;
-}
-
-/** Estado completo e serializável de um personagem. É o formato do save. */
-export interface CharacterState {
-  version: number;
-  name: string;
-  vocation: Vocation;
+  vocation?: Vocation;
+  monsterId?: string;
   level: number;
-  experience: number;
-  skills: CharacterSkills;
-  /** Tentativas acumuladas em direção ao próximo ponto de cada skill. */
-  skillTries: CharacterSkills;
+
   hp: number;
-  mana: number;
-  gold: number;
-  /** Stamina restante em minutos. Gate anti-farm infinito. */
-  stamina: number;
-  areaId: string;
-  inventory: ItemStack[];
-  equipment: Partial<Record<EquipSlot, string>>;
-  settings: CharacterSettings;
-  combat: CombatState;
-  totals: CharacterTotals;
-  rngSeed: number;
-  /** Epoch ms do último tick aplicado. O servidor usa isto para o catch-up. */
-  lastTickAt: number;
-}
-
-/** Atributos efetivos, derivados de vocação + nível + equipamento. */
-export interface DerivedStats {
   maxHp: number;
+  mana: number;
   maxMana: number;
-  capacity: number;
-  /** Peso carregado, em oz. */
-  load: number;
-  attack: number;
+
+  pos: Vec2;
+  facing: Facing;
+  alive: boolean;
+  /** ms restantes com o corpo na tela antes de sumir. */
+  corpseMs: number;
+
+  /** Tile de origem enquanto anda; `null` quando parado. */
+  moveFrom: Vec2 | null;
+  /** Progresso da caminhada atual, 0..1. */
+  moveProgress: number;
+  moveDurationMs: number;
+
+  attackCdMs: number;
+  potionCdMs: number;
+  spellCdMs: Record<string, number>;
+
+  targetId: string | null;
+
+  attackMin: number;
+  attackMax: number;
   armor: number;
-  defense: number;
+  attackRange: number;
   attackSpeedMs: number;
-  ranged: boolean;
+  moveSpeedMs: number;
   magicLevel: number;
-  blockChance: number;
-  minHit: number;
-  maxHit: number;
-  hpRegen: number;
-  manaRegen: number;
-  spell: (SpellDef & { minHit: number; maxHit: number }) | null;
+
+  potions: number;
+  manaPotions: number;
+
+  doctrine: Doctrine;
+  spells: readonly string[];
+  sprite: string;
+  scale: number;
+
+  damageDone: number;
+  damageTaken: number;
+  healingDone: number;
 }
 
-export type SimEventKind =
-  | 'hit'
-  | 'spell'
-  | 'taken'
-  | 'block'
-  | 'kill'
-  | 'loot'
-  | 'levelup'
-  | 'skillup'
-  | 'death'
-  | 'potion'
-  | 'rest'
-  | 'info';
+// ---------------------------------------------------------------------------
+// Estado da simulação
+// ---------------------------------------------------------------------------
 
-export interface SimEvent {
-  /** Epoch ms em que o evento ocorreu na simulação. */
-  t: number;
-  kind: SimEventKind;
-  text: string;
+export type WaveState = 'preparando' | 'lutando' | 'limpa' | 'derrota';
+
+export interface SimState {
+  /** Tempo simulado desde o início, em ms. */
+  timeMs: number;
+  arenaId: string;
+  waveIndex: number;
+  waveState: WaveState;
+  /** Contagem regressiva entre ondas. */
+  waveTimerMs: number;
+  combatants: Combatant[];
+  rngSeed: number;
+  nextId: number;
+  totals: {
+    kills: number;
+    wavesCleared: number;
+    exp: number;
+    gold: number;
+    potionsUsed: number;
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Efeitos visuais emitidos pela simulação
+// ---------------------------------------------------------------------------
+
+export type FxKind =
+  | 'dano'
+  | 'cura'
+  | 'fala'
+  | 'efeito'
+  | 'projetil'
+  | 'morte'
+  | 'gold'
+  | 'aviso';
+
+export interface Fx {
+  id: number;
+  kind: FxKind;
+  /** Momento da simulação em que nasceu, em ms. */
+  tMs: number;
+  durationMs: number;
+  pos: Vec2;
+  /** Destino, para projéteis. */
+  to?: Vec2;
+  text?: string;
   value?: number;
-  rarity?: Rarity;
+  effect?: string;
+  side?: Side;
+  /** Combatente envolvido — o renderizador usa para piscar quem apanhou. */
+  entityId?: string;
 }
 
-export interface SimSummary {
-  /** Tempo efetivamente simulado (já limitado pelo teto offline). */
-  ms: number;
-  /** Tempo descartado por exceder o teto offline. */
-  skippedMs: number;
-  kills: number;
-  exp: number;
-  gold: number;
-  loot: Record<string, number>;
-  levelsGained: number;
-  deaths: number;
-  potionsUsed: number;
-  staminaSpent: number;
+export interface LogEntry {
+  tMs: number;
+  text: string;
+  kind: 'combate' | 'onda' | 'morte' | 'loot' | 'aviso';
 }
 
-export interface SimResult {
-  state: CharacterState;
-  events: SimEvent[];
-  summary: SimSummary;
+export interface TickResult {
+  fx: Fx[];
+  log: LogEntry[];
 }

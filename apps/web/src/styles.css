@@ -1,0 +1,659 @@
+/* ---------------------------------------------------------------------------
+   Covil — estilo base
+   Mobile-first. O tema é escuro por decisão de arte, não por preferência de
+   sistema: é um jogo de masmorra.
+--------------------------------------------------------------------------- */
+
+:root {
+  --bg: #12100f;
+  --bg-deep: #0b0a09;
+  --surface: #1c1917;
+  --surface-2: #262220;
+  --surface-3: #322c28;
+  --border: #3a332e;
+  --border-soft: #2b2521;
+
+  --text: #ede8e0;
+  --text-dim: #a89e92;
+  --text-faint: #7a7168;
+
+  --accent: #d8ab4a;
+  --accent-deep: #8a6a24;
+  --danger: #d0503c;
+  --success: #5ec26a;
+  --mana: #4a8ad0;
+  --magic: #b26bd8;
+
+  --radius: 10px;
+  --radius-sm: 7px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --nav-height: 60px;
+  --tap: 44px;
+
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* Reduz o atraso de 300ms no toque sem desabilitar o zoom. */
+  touch-action: manipulation;
+  overscroll-behavior-y: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--mono);
+}
+
+/* --- estrutura ---------------------------------------------------------- */
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+}
+
+.app__main {
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: var(--space-3);
+  /* Espaço para a navegação fixa não cobrir o conteúdo. */
+  padding-bottom: calc(var(--space-4) + var(--nav-height) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Coluna de conteúdo: empilha no celular, vira lado a lado no desktop. */
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* --- cabeçalho ---------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  padding-top: calc(var(--space-2) + env(safe-area-inset-top));
+  background: linear-gradient(180deg, var(--bg-deep), var(--surface));
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.header__brand {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.header__stats {
+  margin-left: auto;
+  display: flex;
+  gap: var(--space-3);
+  font-size: 13px;
+}
+
+.header__stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-dim);
+}
+
+.header__stat b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* --- cartões ------------------------------------------------------------ */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--surface-2);
+}
+
+.card__title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.card__body {
+  padding: var(--space-3);
+}
+
+/* --- arena -------------------------------------------------------------- */
+
+.arena {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+}
+
+.arena__stage {
+  position: relative;
+  width: 100%;
+  /* Sobrescrito em tempo de execução com as dimensões reais da arena. */
+  aspect-ratio: 15 / 11;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #0a0908;
+}
+
+.arena__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.arena__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-1) var(--space-2);
+}
+
+.arena__name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.arena__state {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+
+/* --- trilha de ondas ---------------------------------------------------- */
+
+.waves {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2) var(--space-1);
+  flex-wrap: wrap;
+}
+
+.waves__pip {
+  width: 20px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+}
+
+.waves__pip--done {
+  background: var(--accent-deep);
+  border-color: var(--accent);
+}
+
+.waves__pip--current {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(216, 171, 74, 0.55);
+}
+
+.waves__boss {
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  margin-left: 2px;
+}
+
+.waves__boss--active {
+  color: var(--danger);
+}
+
+/* --- controles ---------------------------------------------------------- */
+
+.controls {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.btn {
+  min-height: var(--tap);
+  padding: 0 var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+}
+
+.btn:hover {
+  background: var(--surface-3);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn--primary {
+  background: var(--accent-deep);
+  border-color: var(--accent);
+  color: #fff6e0;
+}
+
+.btn--ghost {
+  background: transparent;
+}
+
+.segmented {
+  display: flex;
+  gap: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.segmented__option {
+  flex: 1;
+  min-height: 38px;
+  padding: 0 var(--space-2);
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition: background 140ms ease, color 140ms ease;
+  white-space: nowrap;
+}
+
+.segmented__option[aria-pressed='true'] {
+  background: var(--accent-deep);
+  color: #fff6e0;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* --- grupo -------------------------------------------------------------- */
+
+.party {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.member {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+
+.member--down {
+  opacity: 0.45;
+}
+
+.member__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  image-rendering: pixelated;
+}
+
+.member__top {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.member__name {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.member__role {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+
+.member__level {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.bar {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-soft);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.bar__fill {
+  height: 100%;
+  transition: width 180ms linear;
+}
+
+/* Cor sólida, não gradiente: um gradiente atravessando a barra faz vida cheia
+   parecer vida pela metade. A cor comunica o estado; o comprimento, o valor. */
+.bar__fill--hp {
+  background: var(--success);
+}
+
+.bar__fill--hp-mid {
+  background: #d8b34a;
+}
+
+.bar__fill--hp-low {
+  background: var(--danger);
+}
+
+.bar__fill--mana {
+  background: var(--mana);
+}
+
+.member__numbers {
+  display: flex;
+  gap: var(--space-3);
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 3px;
+}
+
+/* --- doutrina ----------------------------------------------------------- */
+
+.doctrine {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--border);
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: var(--space-2);
+}
+
+.field__hint {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: var(--space-1);
+  line-height: 1.4;
+}
+
+.slider {
+  width: 100%;
+  height: var(--tap);
+  accent-color: var(--accent);
+}
+
+/* --- log ---------------------------------------------------------------- */
+
+.log {
+  max-height: 168px;
+  overflow-y: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.log__line {
+  color: var(--text-dim);
+}
+
+.log__line--onda {
+  color: var(--accent);
+}
+
+.log__line--morte {
+  color: var(--danger);
+}
+
+.log__line--aviso {
+  color: #e8845a;
+}
+
+/* --- métricas ----------------------------------------------------------- */
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: var(--space-2);
+}
+
+.metric {
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.metric__label {
+  font-size: 11px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.metric__value {
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--mono);
+}
+
+/* --- navegação inferior ------------------------------------------------- */
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  /* A barra de gestos do celular não pode cobrir os botões. */
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 40;
+}
+
+.nav__item {
+  min-height: var(--nav-height);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--text-faint);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: color 160ms ease;
+}
+
+.nav__item[aria-current='page'] {
+  color: var(--accent);
+}
+
+.nav__item[aria-current='page'] .nav__dot {
+  opacity: 1;
+}
+
+.nav__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+/* --- vazio/placeholder -------------------------------------------------- */
+
+.empty {
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+  color: var(--text-dim);
+}
+
+.empty h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 17px;
+  color: var(--text);
+}
+
+.empty p {
+  margin: 0 auto;
+  max-width: 42ch;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.notice {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-faint);
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+}
+
+/* --- telas grandes ------------------------------------------------------ */
+
+@media (min-width: 1024px) {
+  .app {
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 1fr;
+  }
+
+  .app__main {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+    align-items: start;
+    gap: var(--space-4);
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+    padding: var(--space-4);
+    padding-bottom: var(--space-4);
+  }
+
+  .app__main--single {
+    grid-template-columns: minmax(0, 900px);
+    justify-content: center;
+  }
+
+  .nav {
+    position: static;
+    grid-template-columns: repeat(5, auto);
+    justify-content: center;
+    gap: var(--space-2);
+    border-top: none;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    backdrop-filter: none;
+  }
+
+  .nav__item {
+    min-height: var(--tap);
+    flex-direction: row;
+    gap: var(--space-2);
+    padding: 0 var(--space-4);
+    font-size: 13px;
+  }
+}
+
+/* --- acessibilidade ----------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

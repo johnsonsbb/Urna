@@ -8,18 +8,28 @@ O combate é 100% automatizado: você nunca move ninguém. A habilidade está to
 
 ## Estado atual
 
-🚧 **Pré-implementação.** O design está sendo fechado; o código do jogo ainda não começou.
+🚧 **Protótipo da arena — jogável, sem backend.**
 
-O que existe: workspace do monorepo, tipos do domínio e o RNG determinístico.
+Roda de ponta a ponta: as 11 ondas do Covil Raso, o boss, movimento em grid,
+magias com matriz de área, poções, morte e recomposição do grupo. A doutrina é
+editável com a arena rodando, e vale no mesmo instante.
+
+O que ainda **não** existe: contas, persistência, progresso offline, economia,
+equipamento. O protótipo serve para validar o combate e o enquadramento em
+tela antes de investir no resto.
+
+> Os sprites são placeholders desenhados em código. A arte final vem do
+> [OpenTibia Sprite Pack](https://github.com/peonso/opentibia_sprite_pack)
+> (CC BY 4.0), via atlas.
 
 > O repositório ainda se chama `Urna` por herança — o jogo é **Covil**.
 
-## Arquitetura pretendida
+## Arquitetura
 
 ```
 packages/core     engine determinística — tipos, fórmulas, dados, simulação
-apps/server       Fastify + SQLite + JWT + WebSocket (autoritativo)
 apps/web          Vite + React + TypeScript + canvas 2D + PWA
+apps/server       Fastify + SQLite + JWT + WebSocket  (ainda não escrito)
 ```
 
 A mesma engine roda nos dois lados: **autoritativa no servidor** (recalcula o progresso pelo relógio dele) e **preditiva no cliente** (mesma semente, mesmo resultado, 60fps). É isso que viabiliza progresso offline, replay da sessão e verificação anticheat pelo mesmo mecanismo.
@@ -35,9 +45,20 @@ Também é o que torna o projeto barato de operar: **o servidor não gasta CPU c
 
 ```bash
 pnpm install
-cp .env.example .env    # ajuste JWT_SECRET antes de qualquer coisa
-pnpm dev
+pnpm dev:web            # abre em http://localhost:5173
 ```
+
+Outros comandos:
+
+```bash
+pnpm test               # testes do engine, incluindo determinismo e custo de CPU
+pnpm typecheck
+pnpm build
+pnpm icons              # regenera os ícones do PWA (procedurais, sem dependências)
+```
+
+Quando o servidor existir, `cp .env.example .env` e ajuste o `JWT_SECRET` antes
+de qualquer coisa.
 
 ## Licenças e assets
 
