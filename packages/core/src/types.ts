@@ -220,6 +220,16 @@ export interface SimState {
   combatants: Combatant[];
   rngSeed: number;
   nextId: number;
+  /**
+   * Limite exclusivo de avanço. Ao vencer a última onda permitida, o grupo
+   * recomeça o covil do início — é assim que o farm seguro funciona: refazer
+   * o que já se vence, em vez de repetir só a onda mais difícil.
+   */
+  waveCap: number;
+  /** Quantas vezes o grupo foi derrotado nesta simulação. */
+  wipes: number;
+  /** Maior número de ondas vencidas em sequência — alimenta o progresso salvo. */
+  highestWaveCleared: number;
   totals: {
     kills: number;
     wavesCleared: number;
@@ -227,6 +237,91 @@ export interface SimState {
     gold: number;
     potionsUsed: number;
   };
+}
+
+// ---------------------------------------------------------------------------
+// Estado persistente do jogador
+// ---------------------------------------------------------------------------
+
+/** Política definida antes de fechar o app. */
+export type HuntPolicy = 'seguro' | 'empurrar';
+
+export interface PartyMemberState {
+  id: string;
+  name: string;
+  vocation: Vocation;
+  experience: number;
+  doctrine: Doctrine;
+  potions: number;
+  manaPotions: number;
+}
+
+/**
+ * O que é salvo entre sessões.
+ *
+ * Não é o `SimState`: a arena é efêmera e recriada a cada catch-up. O que
+ * persiste é o perfil — grupo, progresso, recursos e a política escolhida.
+ */
+export interface PlayerState {
+  version: number;
+  party: PartyMemberState[];
+  gold: number;
+  /** Stamina restante, em minutos. */
+  stamina: number;
+  arenaId: string;
+  /** Quantas ondas da arena **atual** já foram vencidas. */
+  clearedWaves: number;
+  /**
+   * Progresso guardado das outras arenas.
+   *
+   * Trocar de covil não pode apagar o que já foi conquistado: ao trocar, o
+   * progresso atual é arquivado aqui e o da arena de destino é restaurado.
+   */
+  arenaProgress: Record<string, number>;
+  policy: HuntPolicy;
+  rngSeed: number;
+  /** Epoch ms do último catch-up aplicado pelo servidor. */
+  lastTickAt: number;
+  totals: {
+    kills: number;
+    deaths: number;
+    expEarned: number;
+    goldEarned: number;
+    wavesCleared: number;
+    huntedMs: number;
+  };
+}
+
+export interface LevelUp {
+  name: string;
+  from: number;
+  to: number;
+}
+
+/** O relatório que o jogador recebe ao voltar. */
+export interface OfflineReport {
+  elapsedMs: number;
+  /** Tempo efetivamente simulado, já limitado por teto e stamina. */
+  simulatedMs: number;
+  /** Descartado por exceder o teto offline. */
+  skippedMs: number;
+  /** Descartado por falta de stamina. */
+  restedMs: number;
+  staminaSpent: number;
+  staminaRegen: number;
+  kills: number;
+  exp: number;
+  gold: number;
+  potionsUsed: number;
+  wavesCleared: number;
+  wipes: number;
+  levelUps: LevelUp[];
+  policy: HuntPolicy;
+  /** Ondas vencidas na arena antes e depois do período. */
+  progressBefore: number;
+  progressAfter: number;
+  /** Ficou sem suprimento durante o período. */
+  ranOutOfSupplies: boolean;
 }
 
 // ---------------------------------------------------------------------------

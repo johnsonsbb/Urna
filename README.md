@@ -8,15 +8,15 @@ O combate é 100% automatizado: você nunca move ninguém. A habilidade está to
 
 ## Estado atual
 
-🚧 **Protótipo da arena — jogável, sem backend.**
+🚧 **Arena jogável + backend autoritativo com progresso offline.**
 
-Roda de ponta a ponta: as 11 ondas do Covil Raso, o boss, movimento em grid,
-magias com matriz de área, poções, morte e recomposição do grupo. A doutrina é
-editável com a arena rodando, e vale no mesmo instante.
+**Funciona:** as 11 ondas do Covil Raso e o boss, movimento em grid, magias com
+matriz de área, poções, morte e recomposição. Contas, login, persistência e —
+o principal — **progresso offline de verdade**: o servidor reconstrói o que
+aconteceu enquanto o app esteve fechado e devolve o relatório.
 
-O que ainda **não** existe: contas, persistência, progresso offline, economia,
-equipamento. O protótipo serve para validar o combate e o enquadramento em
-tela antes de investir no resto.
+**Ainda não existe:** equipamento, loja na interface, ranking na interface, e a
+ligação do PWA com a API (o cliente ainda roda a simulação local).
 
 > Os sprites são placeholders desenhados em código. A arte final vem do
 > [OpenTibia Sprite Pack](https://github.com/peonso/opentibia_sprite_pack)
@@ -27,9 +27,9 @@ tela antes de investir no resto.
 ## Arquitetura
 
 ```
-packages/core     engine determinística — tipos, fórmulas, dados, simulação
+packages/core     engine determinística — tipos, fórmulas, dados, simulação, catch-up
 apps/web          Vite + React + TypeScript + canvas 2D + PWA
-apps/server       Fastify + SQLite + JWT + WebSocket  (ainda não escrito)
+apps/server       Fastify + SQLite (node:sqlite) + JWT
 ```
 
 A mesma engine roda nos dois lados: **autoritativa no servidor** (recalcula o progresso pelo relógio dele) e **preditiva no cliente** (mesma semente, mesmo resultado, 60fps). É isso que viabiliza progresso offline, replay da sessão e verificação anticheat pelo mesmo mecanismo.
@@ -45,20 +45,33 @@ Também é o que torna o projeto barato de operar: **o servidor não gasta CPU c
 
 ```bash
 pnpm install
-pnpm dev:web            # abre em http://localhost:5173
+cp .env.example .env    # ajuste o JWT_SECRET antes de qualquer coisa
+pnpm dev                # servidor em :3333, PWA em :5173
 ```
 
 Outros comandos:
 
 ```bash
-pnpm test               # testes do engine, incluindo determinismo e custo de CPU
+pnpm test               # engine (determinismo, offline, custo de CPU) + fumaça do servidor
 pnpm typecheck
 pnpm build
 pnpm icons              # regenera os ícones do PWA (procedurais, sem dependências)
 ```
 
-Quando o servidor existir, `cp .env.example .env` e ajuste o `JWT_SECRET` antes
-de qualquer coisa.
+### API
+
+| Rota | O que faz |
+|---|---|
+| `POST /api/auth/register` | cria conta e grupo |
+| `POST /api/auth/login` | autentica e já devolve o relatório do tempo fora |
+| `GET /api/game/state` | **aplica o catch-up** e devolve estado + relatório |
+| `POST /api/game/command` | política, doutrina, troca de arena, compra de poções |
+| `GET /api/ranking` | classificação global |
+| `GET /api/arenas` | covis disponíveis |
+
+Toda leitura de estado aplica o tempo decorrido antes de responder. O cliente
+nunca informa quanto ganhou — ele pergunta que horas são, e o servidor conta o
+que aconteceu.
 
 ## Licenças e assets
 

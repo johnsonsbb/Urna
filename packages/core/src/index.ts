@@ -37,6 +37,7 @@ export {
 } from './sim/spawn.js';
 
 export {
+  MAX_PUSH_ATTEMPTS,
   TICK_MS,
   createSim,
   gridFor,
@@ -46,3 +47,27 @@ export {
   stepSim,
   type SimOptions,
 } from './sim/tick.js';
+
+export {
+  MAX_PARTY_SLOTS,
+  PLAYER_STATE_VERSION,
+  STAMINA_LOW,
+  STAMINA_MAX,
+  STARTING_GOLD,
+  STARTING_POTIONS,
+  createPlayer,
+  expToNext,
+  grantExp,
+  memberLevel,
+  partyLevel,
+  switchArena,
+  toPartyConfigs,
+  type CreatePlayerOptions,
+} from './player.js';
+
+export {
+  LOW_STAMINA_EXP_FACTOR,
+  OFFLINE_CAP_MS,
+  STAMINA_REGEN_RATIO,
+  runOffline,
+} from './offline.js';

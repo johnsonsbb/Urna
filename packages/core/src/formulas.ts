@@ -19,6 +19,22 @@ export function expToNextLevel(level: number, experience: number): number {
   return Math.max(0, totalExpForLevel(level + 1) - experience);
 }
 
+/** Inverso de `totalExpForLevel`: o nível correspondente a uma experiência. */
+export function levelFromExp(experience: number): number {
+  if (experience <= 0) return 1;
+
+  // Busca binária sobre uma curva monotônica. O teto é folgado de propósito:
+  // nenhuma progressão realista chega perto dele.
+  let low = 1;
+  let high = 2000;
+  while (low < high) {
+    const middle = Math.floor((low + high + 1) / 2);
+    if (totalExpForLevel(middle) <= experience) low = middle;
+    else high = middle - 1;
+  }
+  return low;
+}
+
 /** Progresso dentro do nível atual, 0..1. */
 export function levelProgress(level: number, experience: number): number {
   const floor = totalExpForLevel(level);

@@ -36,7 +36,18 @@ const CORPSE_MS = 5000;
 const WAVE_BREAK_MS = 3200;
 const WAVE_START_MS = 1200;
 const WIPE_RECOVERY_MS = 4000;
-const POTION_CD_MS = 1000;
+/**
+ * Espera entre poções.
+ *
+ * É a alavanca de balanceamento mais importante do jogo. Com 1s, a cura por
+ * poção supera qualquer dano recebido e um grupo nível 1 limpa o boss desde
+ * que tenha tempo — o que apaga a "parede da build" que o design promete.
+ */
+const POTION_CD_MS = 2600;
+
+/** Cura da poção básica. Quase plana de propósito — ver nota abaixo. */
+const POTION_HEAL_BASE = 45;
+const POTION_HEAL_PER_LEVEL = 2.2;
 /** Atraso no ataque básico depois de conjurar, para não sair tudo no mesmo tick. */
 const CAST_RECOVERY_MS = 700;
 
@@ -63,15 +74,21 @@ export function gridFor(arenaId: string): Grid {
   return grid;
 }
 
+/** Tentativas frustradas antes de o grupo desistir e voltar ao farm seguro. */
+export const MAX_PUSH_ATTEMPTS = 3;
+
 export interface SimOptions {
   arenaId: string;
   party: PartyConfig[];
   seed?: number;
   waveIndex?: number;
+  /** Até onde o grupo pode avançar (exclusivo). Padrão: a arena inteira. */
+  waveCap?: number;
 }
 
 export function createSim(options: SimOptions): SimState {
   const grid = gridFor(options.arenaId);
+  const arena = getArena(options.arenaId);
   const combatants: Combatant[] = [];
   let nextId = 1;
 
@@ -89,6 +106,9 @@ export function createSim(options: SimOptions): SimState {
     combatants,
     rngSeed: options.seed ?? 0x5eed,
     nextId,
+    waveCap: Math.max(1, Math.min(options.waveCap ?? arena.waves.length, arena.waves.length)),
+    wipes: 0,
+    highestWaveCleared: options.waveIndex ?? 0,
     totals: { kills: 0, wavesCleared: 0, exp: 0, gold: 0, potionsUsed: 0 },
   };
 }
@@ -181,10 +201,11 @@ function advanceWaveState(ctx: Ctx): void {
     if (state.waveTimerMs > 0) return;
 
     state.waveIndex++;
-    if (state.waveIndex >= arena.waves.length) {
+    if (state.waveIndex >= state.waveCap) {
       state.waveIndex = 0;
-      pushLog(ctx, 'onda', `${arena.name} concluído! Recomeçando o ciclo.`);
+      pushLog(ctx, 'onda', `${arena.name} — recomeçando o ciclo.`);
     }
+
     state.waveState = 'preparando';
     state.waveTimerMs = WAVE_START_MS;
     return;
@@ -238,6 +259,7 @@ function checkWaveEnd(ctx: Ctx): void {
   if (!partyAlive) {
     state.waveState = 'derrota';
     state.waveTimerMs = WIPE_RECOVERY_MS;
+    state.wipes++;
     pushLog(ctx, 'aviso', 'O grupo foi derrotado e recuou.');
     return;
   }
@@ -246,6 +268,7 @@ function checkWaveEnd(ctx: Ctx): void {
     state.waveState = 'limpa';
     state.waveTimerMs = WAVE_BREAK_MS;
     state.totals.wavesCleared++;
+    state.highestWaveCleared = Math.max(state.highestWaveCleared, state.waveIndex + 1);
 
     // Um fôlego entre ondas — senão o grupo derrete por acúmulo, não por dificuldade.
     for (const c of state.combatants) {
@@ -265,6 +288,9 @@ function checkWaveEnd(ctx: Ctx): void {
 function recoverParty(ctx: Ctx): void {
   const { state, grid } = ctx;
   state.combatants = state.combatants.filter((c) => c.side === 'party');
+
+  // Depois de uma derrota o ciclo recomeça do início do covil.
+  state.waveIndex = 0;
 
   state.combatants.forEach((c, index) => {
     c.alive = true;
@@ -405,7 +431,12 @@ function drinkPotionIfNeeded(ctx: Ctx, c: Combatant): boolean {
     c.potions--;
     c.potionCdMs = POTION_CD_MS;
     ctx.state.totals.potionsUsed++;
-    const healed = Math.min(c.maxHp - c.hp, Math.floor(c.maxHp * 0.28));
+    // Valor quase fixo em vez de porcentagem da vida máxima: uma porcentagem
+    // faz a poção sustentar qualquer nível para sempre. Assim ela pesa muito
+    // cedo, perde força conforme a vida cresce, e abre espaço para poções
+    // melhores serem um objetivo econômico de verdade.
+    const potency = Math.floor(POTION_HEAL_BASE + c.level * POTION_HEAL_PER_LEVEL);
+    const healed = Math.min(c.maxHp - c.hp, potency);
     c.hp += healed;
     ctx.fx.push(makeFx('cura', c.pos, { value: healed, durationMs: 900 }));
     return false; // beber não gasta o turno

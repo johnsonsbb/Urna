@@ -197,8 +197,20 @@ O que limita é a build e a stamina — nunca a sua atenção.
 
 | Modo | Comportamento | Custo |
 |---|---|---|
-| **Farmar seguro** | repete a última wave vencida em loop | nenhum — ganho estável |
-| **Empurrar** | tenta a próxima wave | queima suprimento; pode morrer e recuar |
+| **Farmar seguro** | refaz o covil do início até a última wave vencida, em ciclo | nenhum — ganho estável |
+| **Empurrar** | mesmo ciclo, mais **uma** wave além da fronteira | queima suprimento; pode morrer e recuar |
+
+> **Por que o ciclo, e não repetir a wave mais difícil.** Repetir só a última
+> vencida coloca o grupo na wave em que ele mal sobrevive, a noite inteira,
+> sem ninguém olhando — e ele morre em loop. Refazer o covil do início mistura
+> waves fáceis com difíceis, é auto-corretivo e é o que o jogador espera de um
+> botão de "loop". O preço é que farmar a mesma arena satura: o ganho por hora
+> para de crescer com o nível, o que empurra para a arena seguinte. Isso é
+> intencional.
+
+Depois de **três derrotas seguidas sem progresso**, o grupo desiste de empurrar
+e volta ao ciclo seguro pelo resto do período — em vez de torrar o estoque de
+poção contra uma parede que a build atual não vence.
 
 ### 8.3 Stamina
 
