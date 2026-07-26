@@ -9,6 +9,7 @@ import {
   switchArena,
   type OfflineReport,
   type PlayerState,
+  type PlayerView,
   type Vocation,
 } from '@covil/core';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -95,7 +96,7 @@ function syncPlayer(row: PlayerRow): { state: PlayerState; report: OfflineReport
 }
 
 /** Só o que o cliente precisa ver — nunca a semente nem o estado bruto. */
-function toView(state: PlayerState) {
+function toView(state: PlayerState): PlayerView {
   const arena = ARENAS[state.arenaId];
   return {
     gold: state.gold,

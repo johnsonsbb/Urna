@@ -1,4 +1,11 @@
-import { ARENAS, formatDuration, formatNumber, type Combatant } from '@covil/core';
+import {
+  ARENAS,
+  formatDuration,
+  formatNumber,
+  type Combatant,
+  type HuntPolicy,
+  type PlayerView,
+} from '@covil/core';
 import { useMemo, type RefObject } from 'react';
 
 import { getSpriteDataUrl } from '../game/atlas';
@@ -16,6 +23,10 @@ interface ArenaScreenProps {
   arenaId: string;
   onArenaChange: (arenaId: string) => void;
   onRestart: () => void;
+  /** Presente apenas com conta: é o estado que o servidor guarda. */
+  player: PlayerView | null;
+  onPolicyChange: (policy: HuntPolicy) => void;
+  busy: boolean;
 }
 
 const SPEEDS = [1, 2, 4] as const;
@@ -37,6 +48,9 @@ export function ArenaScreen({
   arenaId,
   onArenaChange,
   onRestart,
+  player,
+  onPolicyChange,
+  busy,
 }: ArenaScreenProps) {
   return (
     <>
@@ -112,6 +126,44 @@ export function ArenaScreen({
           <IconRestart size={18} />
         </button>
       </div>
+
+      {player && (
+        <section className="card">
+          <div className="card__head">
+            <span className="card__title">Antes de fechar o app</span>
+            <span className="arena__state tabular">
+              {player.clearedWaves}/{player.totalWaves} ondas
+            </span>
+          </div>
+          <div className="card__body">
+            <div className="segmented" role="group" aria-label="Política de caçada">
+              <button
+                type="button"
+                className="segmented__option"
+                aria-pressed={player.policy === 'seguro'}
+                disabled={busy}
+                onClick={() => onPolicyChange('seguro')}
+              >
+                Farmar seguro
+              </button>
+              <button
+                type="button"
+                className="segmented__option"
+                aria-pressed={player.policy === 'empurrar'}
+                disabled={busy}
+                onClick={() => onPolicyChange('empurrar')}
+              >
+                Empurrar
+              </button>
+            </div>
+            <p className="field__hint">
+              {player.policy === 'seguro'
+                ? `Refaz o covil até a onda ${player.clearedWaves} em ciclo. Ganho estável, risco zero.`
+                : `Refaz o ciclo e tenta a onda ${Math.min(player.clearedWaves + 1, player.totalWaves)}. Queima suprimento e pode morrer — mas é o único jeito de destravar.`}
+            </p>
+          </div>
+        </section>
+      )}
 
       <div className="segmented" role="group" aria-label="Escolher arena">
         {Object.values(ARENAS).map((arena) => (

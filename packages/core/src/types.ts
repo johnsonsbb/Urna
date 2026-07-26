@@ -298,6 +298,43 @@ export interface LevelUp {
   to: number;
 }
 
+// ---------------------------------------------------------------------------
+// Visão enviada ao cliente
+// ---------------------------------------------------------------------------
+
+/**
+ * O que o servidor expõe do jogador.
+ *
+ * Vive no core para os dois lados compilarem contra o mesmo contrato — se o
+ * servidor mudar o formato, o cliente quebra na compilação e não em produção.
+ * Note o que **não** está aqui: a semente do RNG e o estado bruto.
+ */
+export interface PartyMemberView {
+  id: string;
+  name: string;
+  vocation: Vocation;
+  level: number;
+  experience: number;
+  expToNext: number;
+  potions: number;
+  manaPotions: number;
+  doctrine: Doctrine;
+}
+
+export interface PlayerView {
+  gold: number;
+  stamina: number;
+  arenaId: string;
+  arenaName: string;
+  clearedWaves: number;
+  totalWaves: number;
+  policy: HuntPolicy;
+  level: number;
+  totals: PlayerState['totals'];
+  lastTickAt: number;
+  party: PartyMemberView[];
+}
+
 /** O relatório que o jogador recebe ao voltar. */
 export interface OfflineReport {
   elapsedMs: number;

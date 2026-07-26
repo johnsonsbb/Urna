@@ -35,6 +35,29 @@ export const STAMINA_REGEN_RATIO = 1 / 3;
 /** Multiplicador de experiência com a stamina baixa. */
 export const LOW_STAMINA_EXP_FACTOR = 0.5;
 
+/**
+ * Junta os degraus em um salto por personagem.
+ *
+ * Cada fatia de 30 min gera seus próprios level-ups, então uma noite rende
+ * dezenas de entradas — e a tela de retorno vira um paredão de texto. O que
+ * interessa é de onde para onde cada um foi.
+ */
+function collapseLevelUps(levelUps: LevelUp[]): LevelUp[] {
+  const porNome = new Map<string, LevelUp>();
+
+  for (const levelUp of levelUps) {
+    const atual = porNome.get(levelUp.name);
+    if (!atual) {
+      porNome.set(levelUp.name, { ...levelUp });
+      continue;
+    }
+    atual.from = Math.min(atual.from, levelUp.from);
+    atual.to = Math.max(atual.to, levelUp.to);
+  }
+
+  return [...porNome.values()];
+}
+
 function emptyReport(player: PlayerState, elapsedMs: number): OfflineReport {
   return {
     elapsedMs,
@@ -193,6 +216,7 @@ export function runOffline(player: PlayerState, now: number): OfflineReport {
   player.lastTickAt = now;
 
   return {
+    levelUps: collapseLevelUps(levelUps),
     elapsedMs,
     simulatedMs,
     skippedMs,
@@ -205,7 +229,6 @@ export function runOffline(player: PlayerState, now: number): OfflineReport {
     potionsUsed,
     wavesCleared,
     wipes,
-    levelUps,
     policy: player.policy,
     progressBefore,
     progressAfter: player.clearedWaves,

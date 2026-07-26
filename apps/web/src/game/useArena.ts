@@ -36,6 +36,8 @@ export interface UseArenaOptions {
   seed: number;
   speed: number;
   paused: boolean;
+  /** Até onde o grupo avança. Reflete o progresso salvo e a política. */
+  waveCap?: number;
 }
 
 /** Quantos passos no máximo por quadro, para uma aba lenta não travar tudo. */
@@ -57,16 +59,16 @@ export function useArena(options: UseArenaOptions) {
 
   const [snapshot, setSnapshot] = useState<ArenaSnapshot | null>(null);
 
-  const { arenaId, party, seed } = options;
+  const { arenaId, party, seed, waveCap } = options;
 
-  // Recria a simulação quando a arena, o grupo ou a semente mudam.
+  // Recria a simulação quando a arena, o grupo, a semente ou o limite mudam.
   useEffect(() => {
-    simRef.current = createSim({ arenaId, party, seed });
+    simRef.current = createSim({ arenaId, party, seed, waveCap });
     fxRef.current = [];
     logRef.current = [];
     accRef.current = 0;
     setSnapshot(buildSnapshot(simRef.current, logRef.current));
-  }, [arenaId, party, seed]);
+  }, [arenaId, party, seed, waveCap]);
 
   useEffect(() => {
     let frameId = 0;
@@ -135,7 +137,12 @@ export function useArena(options: UseArenaOptions) {
   const restart = useCallback(() => {
     const sim = simRef.current;
     if (!sim) return;
-    simRef.current = createSim({ arenaId: sim.arenaId, party, seed: sim.rngSeed });
+    simRef.current = createSim({
+      arenaId: sim.arenaId,
+      party,
+      seed: sim.rngSeed,
+      waveCap: sim.waveCap,
+    });
     fxRef.current = [];
     logRef.current = [];
     accRef.current = 0;
