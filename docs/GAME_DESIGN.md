@@ -490,8 +490,31 @@ Nenhuma delas bloqueia o próximo passo (§17).
 
 ---
 
-## 17. Próximo passo proposto
+## 17. Onde o projeto está
 
-Construir a **arena como peça isolada e jogável** — grid, grupo caminhando, atacando, soltando magia em área com efeitos, rodando com dados falsos. Sem backend, sem depender de nenhuma decisão ainda aberta.
+### Construído e verificado
 
-Você abre no celular, olha, e diz se é isso que estava na sua cabeça. Se for, ela vira o coração do jogo. Se não for, perdemos uma semana e não o projeto.
+| Peça | Estado |
+|---|---|
+| Engine determinística (grid, IA de doutrina, magias em área, ondas, boss) | ✅ 36 testes |
+| Arena renderizada em canvas com sprites CC BY | ✅ |
+| Catch-up offline com stamina, política e suprimento | ✅ |
+| Backend: contas, login, persistência, comandos, ranking | ✅ 17 verificações |
+| PWA ligado à API: relatório de retorno, loja, ranking, doutrina | ✅ 14 verificações E2E |
+
+**Custo de CPU do catch-up** — o maior risco registrado em §15 — medido em **~70 ms por hora simulada**, ou seja, ~1 s para 12 h. Dentro do orçamento e sem precisar ainda da fidelidade adaptativa. O teste falha se isso regredir.
+
+### O que falta para virar jogo
+
+1. **Equipamento e loot.** A aba Mochila é placeholder. Hoje o progresso vem só de nível e suprimento — falta o eixo que dá sentido a caçar.
+2. **Conteúdo.** Duas arenas com 11 e 6 ondas acabam rápido demais (ver abaixo).
+3. **Replay da sessão offline.** A arquitetura determinística já permite: basta guardar semente e snapshot. Prometido em §8.5, não escrito.
+4. **Notificação push** quando a stamina enche ou o grupo trava.
+
+### 🔸 Ajustes de balanceamento que os números pediram
+
+Medidos com um grupo real, não estimados:
+
+- **Conteúdo curto demais.** Uma noite de 7 h rende ~3.200 ondas: o grupo refaz o covil inteiro a cada ~85 segundos. Precisa de mais arenas, ondas mais longas, ou um teto de ciclos por período.
+- **Economia frouxa.** A mesma noite rende ~133 mil de gold, com poção a 45 — dá para comprar 3.000 poções. Suprimento nunca vai doer. Faltam drenos (equipamento, reparo, taxa de ressurreição) ou preços muito maiores.
+- **Saturação por arena.** Como o ciclo refaz o covil do início, o ganho por hora para de crescer com o nível. Isso é intencional (§8.2) e empurra para a arena seguinte — mas só funciona se houver arena seguinte.
