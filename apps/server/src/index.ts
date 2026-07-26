@@ -15,7 +15,10 @@ const app = Fastify({
 });
 
 await app.register(cors, {
-  origin: env.corsOrigins.length > 0 ? env.corsOrigins : true,
+  // Em desenvolvimento qualquer origem passa — é o que permite abrir pelo IP
+  // da rede local no celular sem editar configuração. Em produção, só a lista
+  // explícita de CORS_ORIGINS.
+  origin: env.isProduction ? env.corsOrigins : true,
   credentials: true,
 });
 

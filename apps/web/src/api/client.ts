@@ -1,6 +1,20 @@
 import type { Doctrine, HuntPolicy, OfflineReport, PlayerView, Vocation } from '@covil/core';
 
-const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:3333').replace(/\/$/, '');
+/**
+ * Endereço da API.
+ *
+ * Sem `VITE_API_URL`, usa o mesmo host de onde a página foi servida. Isso é o
+ * que faz abrir pelo IP da rede no celular funcionar sem configurar nada:
+ * `localhost` fixo apontaria para o próprio celular, não para a máquina que
+ * está rodando o servidor.
+ */
+function defaultApiUrl(): string {
+  if (typeof window === 'undefined') return 'http://localhost:3333';
+  const { protocol, hostname } = window.location;
+  return `${protocol}//${hostname}:3333`;
+}
+
+const BASE_URL = (import.meta.env.VITE_API_URL || defaultApiUrl()).replace(/\/$/, '');
 const TOKEN_KEY = 'covil.token';
 
 export interface SessionPayload {
