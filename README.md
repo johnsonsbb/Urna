@@ -11,13 +11,14 @@ O escopo completo está em [`docs/escopo.md`](docs/escopo.md).
 
 ## Estado atual
 
-**Fase 1 (núcleo) — pronta.** Setup do Vite, tokens de cor e tipografia,
-schema do Dexie e o módulo de recorrência com testes. Ainda sem interface.
+**Fase 2 (a semana) — pronta.** A Home abre na semana atual com a régua,
+a linha de resultado e a lista do dia selecionado. Dá para navegar entre
+semanas pelas setas ou arrastando, e marcar pagamento antecipado.
 
 | Fase | O que é | Estado |
 |---|---|---|
 | 1 | Núcleo: tokens, schema, recorrência | pronta |
-| 2 | A semana: régua, lista do dia, navegação | a fazer |
+| 2 | A semana: régua, lista do dia, navegação | pronta |
 | 3 | Cadastros: CRUD de recorrentes, gasto avulso | a fazer |
 | 4 | Painel: períodos, totais, categorias | a fazer |
 | 5 | PWA e backup | a fazer |
@@ -41,7 +42,11 @@ src/core/       módulo puro: sem React, sem banco
   recurrence.ts   expansão de ocorrências a partir das regras
   money.ts        formatação de centavos em AUD
   categories.ts   lista fixa de categorias
-src/db/         Dexie: três tabelas mais o registro de settings
+  week.ts         semana: intervalo, navegação e rótulos
+  day.ts          junta ocorrências e avulsos, e soma os totais
+src/ui/         componentes da Home
+src/db/         Dexie: três tabelas mais o registro de settings, e as escritas
+                de override
 src/styles.css  tokens do Tailwind v4 no bloco @theme e os @font-face
 public/fonts/   .woff2 auto-hospedados
 ```
@@ -54,7 +59,12 @@ Três regras que valem para o código inteiro:
    aparece dentro de `core/dates.ts` e `core/recurrence.ts`, sempre em horário
    local — `toISOString()` é proibido, converte para UTC e erra o dia.
 3. **Ocorrências não são armazenadas.** São calculadas a partir das regras a
-   cada consulta. O banco guarda só as exceções, na tabela `overrides`.
+   cada consulta. O banco guarda só as exceções, na tabela `overrides`, e um
+   override que voltou a ser igual ao padrão é apagado em vez de guardado vazio.
+
+Duas versões separadas, que sobem por motivos diferentes: `DB_VERSION` é o
+schema do IndexedDB e sobe quando muda tabela ou índice; `BACKUP_SCHEMA_VERSION`
+é o formato do JSON de backup e sobe quando muda o arquivo exportado.
 
 ## Fontes
 

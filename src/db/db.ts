@@ -7,7 +7,19 @@ import type { Entry, Override, Recurring, Settings } from '../core/types';
  * entrar no backup junto com o resto.
  */
 
-export const SCHEMA_VERSION = 1;
+/**
+ * Versão do schema do IndexedDB. Sobe quando muda tabela ou índice, e cada
+ * degrau precisa da migração correspondente no Dexie. Não tem relação com o
+ * formato do arquivo de backup.
+ */
+export const DB_VERSION = 1;
+
+/**
+ * Versão do formato do JSON de backup (seção 10). Sobe quando muda a forma do
+ * arquivo exportado, e é ela que a importação valida. É esta que vai no campo
+ * `schemaVersion` de settings.
+ */
+export const BACKUP_SCHEMA_VERSION = 1;
 
 /** O registro de settings é único; a chave é fixa. */
 export const SETTINGS_ID = 'app';
@@ -20,7 +32,7 @@ export const DEFAULT_SETTINGS: Settings = {
   weekStartsOn: 1,
   currency: 'AUD',
   locale: 'pt-BR',
-  schemaVersion: SCHEMA_VERSION,
+  schemaVersion: BACKUP_SCHEMA_VERSION,
 };
 
 class CashFlowDB extends Dexie {
@@ -32,7 +44,7 @@ class CashFlowDB extends Dexie {
   constructor() {
     super('cashflow');
 
-    this.version(SCHEMA_VERSION).stores({
+    this.version(DB_VERSION).stores({
       // Índices por data e por fluxo: toda consulta do app é "o que cai nesse
       // intervalo". `notes` e `amount` ficam fora, não se busca por eles.
       recurrings: 'id, flow, active, categoryId, frequency, startDate, endDate',
@@ -56,5 +68,5 @@ export async function getSettings(): Promise<Settings> {
 
 export async function saveSettings(patch: Partial<Settings>): Promise<void> {
   const current = await getSettings();
-  await db.settings.put({ ...current, ...patch, schemaVersion: SCHEMA_VERSION, id: SETTINGS_ID });
+  await db.settings.put({ ...current, ...patch, schemaVersion: BACKUP_SCHEMA_VERSION, id: SETTINGS_ID });
 }
