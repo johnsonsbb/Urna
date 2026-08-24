@@ -220,6 +220,8 @@ Tela de abertura. Sem menu, sem boas-vindas, sem onboarding. Abre já mostrando 
 1. **Cabeçalho compacto:** intervalo da semana ("25 ago a 31 ago") e setas para navegar entre semanas. Botão "hoje" aparece só quando você não está na semana atual.
 2. **A régua da semana** (elemento assinatura, detalhado na seção 8).
 3. **Linha de resultado:** entra, sai, sobra. A "sobra" é o número dominante da tela.
+
+**Sobra negativa vira FALTA.** Quando o resultado é negativo, o rótulo troca de `SOBRA` para `FALTA` e o número perde o sinal: `FALTA $ 1.694,89`, nunca `SOBRA -$ 1.694,89`. Mesma cor, mesma fonte, mesmo tamanho, sem ícone e sem pontuação extra. O motivo é legibilidade, não alarme: a informação mais importante da tela não pode depender de um traço fino. Vale igual na Home e no painel.
 4. **Lista do dia selecionado:** por padrão, hoje. Ordenada por valor decrescente, entradas e saídas juntas. Nunca em ordem alfabética, que não carrega informação nenhuma. Cada item mostra nome, categoria, valor, e um check tocável para marcar pagamento antecipado. Contas variáveis mostram o valor com marca de estimativa e permitem editar o valor real ali mesmo.
 5. **Botão flutuante** de adicionar gasto avulso.
 
@@ -231,7 +233,8 @@ Alternador de período: **Semana / Quinzena / Mês / Ano**.
 
 Conteúdo:
 - Entradas, saídas recorrentes, saídas avulsas, sobra
-- Quebra por categoria, em barras horizontais ordenadas do maior para o menor
+- Quebra das **saídas** por categoria (recorrente e avulso somados), em barras horizontais ordenadas do maior para o menor. As entradas não entram: elas já aparecem inteiras no total de cima
+- Cada barra tem um trilho de fundo em `hairline` ocupando a largura total. Sem trilho, uma categoria pequena vira um toco de 3px que parece defeito, em vez de ler como fração pequena do total
 
 A quinzena é calculada a partir da semana atual mais a seguinte, não como "metade do mês".
 
