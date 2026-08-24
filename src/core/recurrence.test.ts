@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { expandOccurrences, occurrenceDates } from './recurrence';
+import { expandOccurrences, nextOccurrences, occurrenceDates } from './recurrence';
 import type { Override, Recurring } from './types';
 
 /** Recorrente mínimo; cada teste sobrescreve só o que interessa. */
@@ -303,5 +303,47 @@ describe('saída de expandOccurrences', () => {
 
     expect(occurrenceDates(semDia, '2026-01-01', FAR_FUTURE)).toEqual([]);
     expect(occurrenceDates(semAncora, '2026-01-01', '2026-12-31')).toEqual([]);
+  });
+});
+
+describe('nextOccurrences', () => {
+  it('devolve as próximas três de um quinzenal', () => {
+    const r = rec({ frequency: 'fortnightly', anchorDate: '2026-08-28' });
+
+    expect(nextOccurrences(r, 3, '2026-08-24')).toEqual(['2026-08-28', '2026-09-11', '2026-09-25']);
+  });
+
+  it('inclui o próprio dia quando a ocorrência é hoje', () => {
+    const r = rec({ frequency: 'weekly', dayOfWeek: 1 });
+
+    expect(nextOccurrences(r, 2, '2026-08-24')).toEqual(['2026-08-24', '2026-08-31']);
+  });
+
+  it('atravessa meses e anos no mensal com clamp', () => {
+    const r = rec({ frequency: 'monthly', dayOfMonth: 31 });
+
+    expect(nextOccurrences(r, 4, '2025-12-01')).toEqual([
+      '2025-12-31',
+      '2026-01-31',
+      '2026-02-28',
+      '2026-03-31',
+    ]);
+  });
+
+  it('devolve menos que o pedido quando o endDate corta antes', () => {
+    const r = rec({ frequency: 'weekly', dayOfWeek: 1, endDate: '2026-09-01' });
+
+    expect(nextOccurrences(r, 3, '2026-08-24')).toEqual(['2026-08-24', '2026-08-31']);
+  });
+
+  it('anual olha longe o bastante', () => {
+    const r = rec({ frequency: 'yearly', month: 3, dayOfMonth: 15 });
+
+    expect(nextOccurrences(r, 3, '2026-08-24')).toEqual(['2027-03-15', '2028-03-15', '2029-03-15']);
+  });
+
+  it('lista vazia para contagem zero ou regra incompleta', () => {
+    expect(nextOccurrences(rec({ frequency: 'weekly', dayOfWeek: 1 }), 0)).toEqual([]);
+    expect(nextOccurrences(rec({ frequency: 'weekly', dayOfWeek: undefined }), 3)).toEqual([]);
   });
 });

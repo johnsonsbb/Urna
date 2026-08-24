@@ -8,6 +8,7 @@ import { isSameWeek, shiftWeek, weekOf } from '../core/week';
 import { db, DEFAULT_SETTINGS, getSettings } from '../db/db';
 import { setAmountOverride, setPaidEarly } from '../db/mutations';
 import { DayList } from './DayList';
+import { EntrySheet } from './EntrySheet';
 import { ResultLine } from './ResultLine';
 import { WeekHeader } from './WeekHeader';
 import { WeekRuler } from './WeekRuler';
@@ -83,6 +84,7 @@ export function Home() {
   }
 
   const swipe = useHorizontalSwipe(() => goToWeek(1), () => goToWeek(-1));
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   function handleTogglePaid(item: DayItem, paid: boolean) {
     void setPaidEarly(item.sourceId, item.date, paid);
@@ -93,10 +95,7 @@ export function Home() {
   }
 
   return (
-    <div
-      className="mx-auto flex min-h-[100dvh] w-full max-w-[480px] flex-col px-4 pb-[max(16px,env(safe-area-inset-bottom))]"
-      {...swipe}
-    >
+    <div className="mx-auto w-full max-w-[480px] px-4 pb-24" {...swipe}>
       <WeekHeader
         week={week}
         locale={settings.locale}
@@ -126,6 +125,22 @@ export function Home() {
         onTogglePaid={handleTogglePaid}
         onSetAmount={handleSetAmount}
       />
+
+      {/* Botão flutuante: fica acima da barra inferior e respeita a safe area. */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(64px+env(safe-area-inset-bottom))] z-10 mx-auto flex max-w-[480px] justify-end px-4">
+        <button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          aria-label="Adicionar gasto avulso"
+          className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-btn bg-hivis text-ink active:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+        >
+          <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+            <path d="M8 3v10M3 8h10" />
+          </svg>
+        </button>
+      </div>
+
+      {sheetOpen && <EntrySheet onClose={() => setSheetOpen(false)} />}
     </div>
   );
 }

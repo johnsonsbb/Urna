@@ -11,15 +11,16 @@ O escopo completo está em [`docs/escopo.md`](docs/escopo.md).
 
 ## Estado atual
 
-**Fase 2 (a semana) — pronta.** A Home abre na semana atual com a régua,
-a linha de resultado e a lista do dia selecionado. Dá para navegar entre
-semanas pelas setas ou arrastando, e marcar pagamento antecipado.
+**Fase 3 (cadastros) — pronta.** Além da semana, dá para cadastrar, editar,
+pausar e excluir recorrentes, com a regra escrita em linguagem natural e a
+prévia das próximas ocorrências no formulário, e registrar gasto avulso pelo
+botão flutuante.
 
 | Fase | O que é | Estado |
 |---|---|---|
 | 1 | Núcleo: tokens, schema, recorrência | pronta |
 | 2 | A semana: régua, lista do dia, navegação | pronta |
-| 3 | Cadastros: CRUD de recorrentes, gasto avulso | a fazer |
+| 3 | Cadastros: CRUD de recorrentes, gasto avulso | pronta |
 | 4 | Painel: períodos, totais, categorias | a fazer |
 | 5 | PWA e backup | a fazer |
 
@@ -44,7 +45,8 @@ src/core/       módulo puro: sem React, sem banco
   categories.ts   lista fixa de categorias
   week.ts         semana: intervalo, navegação e rótulos
   day.ts          junta ocorrências e avulsos, e soma os totais
-src/ui/         componentes da Home
+  describe.ts     a regra do recorrente em linguagem natural
+src/ui/         componentes das telas
 src/db/         Dexie: três tabelas mais o registro de settings, e as escritas
                 de override
 src/styles.css  tokens do Tailwind v4 no bloco @theme e os @font-face

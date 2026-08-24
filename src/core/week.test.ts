@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   dayNumber,
   formatDayMonth,
+  formatDayMonthYear,
   formatWeekRange,
   isSameWeek,
   shiftWeek,
@@ -75,6 +76,12 @@ describe('rótulos', () => {
     expect(weekdayLabel('2026-08-25')).toBe('TER');
     expect(weekdayLabel('2026-08-29')).toBe('SÁB');
     expect(weekdayLabel('2026-08-30')).toBe('DOM');
+  });
+
+  it('acrescenta o ano só quando a data sai do ano de referência', () => {
+    expect(formatDayMonthYear('2026-08-24', 'pt-BR', '2026-08-24')).toBe('24 ago');
+    expect(formatDayMonthYear('2027-03-15', 'pt-BR', '2026-08-24')).toBe('15 mar 2027');
+    expect(formatDayMonthYear('2025-12-31', 'pt-BR', '2026-01-01')).toBe('31 dez 2025');
   });
 
   it('número do dia sai sem zero à esquerda', () => {

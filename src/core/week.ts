@@ -1,5 +1,5 @@
 import { startOfWeek } from 'date-fns';
-import { addDaysISO, dateToISO, isoToDate } from './dates';
+import { addDaysISO, dateToISO, isoToDate, todayISO } from './dates';
 import type { ISODate, Locale } from './types';
 
 /**
@@ -79,4 +79,17 @@ export function dayNumber(iso: ISODate): string {
 export function formatFullDay(iso: ISODate, locale: Locale = 'pt-BR'): string {
   const weekday = new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(isoToDate(iso));
   return `${weekday}, ${formatDayMonth(iso, locale)}`.toUpperCase();
+}
+
+/**
+ * "24 ago", ou "24 ago 2027" quando a data cai em outro ano. Sem isso a prévia
+ * de um recorrente anual vira três vezes a mesma linha.
+ */
+export function formatDayMonthYear(
+  iso: ISODate,
+  locale: Locale = 'pt-BR',
+  reference: ISODate = todayISO(),
+): string {
+  const base = formatDayMonth(iso, locale);
+  return iso.slice(0, 4) === reference.slice(0, 4) ? base : `${base} ${iso.slice(0, 4)}`;
 }

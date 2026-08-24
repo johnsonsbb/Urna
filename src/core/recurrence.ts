@@ -178,3 +178,27 @@ export function expandOccurrences(
   occurrences.sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name, 'pt-BR'));
   return occurrences;
 }
+
+/**
+ * As próximas `count` ocorrências a partir de `from`, para a prévia do
+ * formulário. Olha uma janela proporcional à frequência em vez de varrer o
+ * calendário inteiro, e pode devolver menos que `count` quando o recorrente
+ * tem `endDate`.
+ */
+const HORIZON_DAYS: Record<Recurring['frequency'], number> = {
+  weekly: 7,
+  fortnightly: 14,
+  monthly: 31,
+  yearly: 366,
+};
+
+export function nextOccurrences(
+  recurring: Recurring,
+  count: number,
+  from: ISODate = todayISO(),
+): ISODate[] {
+  if (count <= 0) return [];
+
+  const horizon = addDaysISO(from, HORIZON_DAYS[recurring.frequency] * (count + 1));
+  return occurrenceDates(recurring, from, horizon).slice(0, count);
+}
