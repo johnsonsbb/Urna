@@ -18,10 +18,11 @@ function Icon({ tab }: { tab: Tab }) {
           <path d="M5.5 2v2M10.5 2v2" />
         </>
       ) : (
+        /* Relógio. A seta circular já é a categoria Assinaturas, e o mesmo
+           glifo em dois lugares passa a significar duas coisas. */
         <>
-          <path d="M13 8A5 5 0 1 1 8 3" />
-          <path d="M5.9 1.1 8.2 3 5.9 4.9" />
-          <path d="M8 5.6V8l1.8 1.2" />
+          <path d="M8 1.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 8 1.8" />
+          <path d="M8 4.8V8l2.4 1.5" />
         </>
       )}
     </svg>

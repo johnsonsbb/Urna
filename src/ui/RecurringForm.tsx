@@ -6,7 +6,7 @@ import { nextOccurrences } from '../core/recurrence';
 import type { Flow, Frequency, Locale, Recurring } from '../core/types';
 import { formatDayMonthYear } from '../core/week';
 import { saveRecurring } from '../db/recurrings';
-import { BUTTON, CONTROL, Field, Segmented, Toggle } from './Controls';
+import { BUTTON, BUTTON_DISABLED, BUTTON_PRIMARY, CONTROL, Field, Segmented } from './Controls';
 
 /**
  * Formulário de recorrente (seção 7.4). Campos na ordem do documento, com o
@@ -119,7 +119,7 @@ export function RecurringForm({ existing, locale, onDone }: Props) {
           type="button"
           onClick={handleSave}
           disabled={!canSave}
-          className={`${BUTTON} ${canSave ? 'bg-ink text-slab' : 'text-steel opacity-50'}`}
+          className={canSave ? BUTTON_PRIMARY : BUTTON_DISABLED}
         >
           SALVAR
         </button>
@@ -160,11 +160,18 @@ export function RecurringForm({ existing, locale, onDone }: Props) {
         />
       </Field>
 
-      <Toggle
-        label="Esse valor varia?"
-        checked={form.isVariable}
-        onChange={(value) => set('isVariable', value)}
-      />
+      <div className="mt-4">
+        <span className="type-display block pb-1 text-xs text-steel">ESSE VALOR VARIA?</span>
+        <Segmented
+          label="Esse valor varia?"
+          value={form.isVariable ? 'sim' : 'nao'}
+          onChange={(value) => set('isVariable', value === 'sim')}
+          options={[
+            { value: 'nao', label: 'NÃO' },
+            { value: 'sim', label: 'SIM' },
+          ]}
+        />
+      </div>
 
       <Field label="CATEGORIA">
         <select

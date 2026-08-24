@@ -11,6 +11,15 @@ export const CONTROL =
 export const BUTTON =
   'flex h-11 items-center justify-center rounded-btn px-3 type-display text-xs font-semibold active:bg-hairline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink';
 
+/** Ação primária: sólida, nunca fantasma. */
+export const BUTTON_PRIMARY = `${BUTTON} bg-ink text-slab`;
+
+/** Ação primária de acento, para o "adicionar" do gasto avulso. */
+export const BUTTON_ACCENT = `${BUTTON} bg-hivis text-ink`;
+
+/** Desabilitado continua parecendo botão: tem borda e superfície, só não age. */
+export const BUTTON_DISABLED = `${BUTTON} border border-hairline bg-slab text-steel`;
+
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="mt-4 block">
@@ -51,30 +60,5 @@ export function Segmented<T extends string>({
         );
       })}
     </div>
-  );
-}
-
-/** Toggle sim/não, com o estado dito em texto para não depender só da cor. */
-export function Toggle({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={() => onChange(!checked)}
-      aria-pressed={checked}
-      className="mt-4 flex h-11 w-full items-center justify-between rounded-btn border border-hairline bg-slab px-3 active:bg-hairline focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink"
-    >
-      <span className="text-base">{label}</span>
-      <span className={`type-display text-xs font-semibold ${checked ? 'text-ink' : 'text-steel'}`}>
-        {checked ? 'SIM' : 'NÃO'}
-      </span>
-    </button>
   );
 }

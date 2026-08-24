@@ -30,21 +30,46 @@ function entry(partial: Partial<Entry> = {}): Entry {
 }
 
 describe('buildDayItems', () => {
-  it('junta ocorrências e avulsos numa lista só, ordenada por data e nome', () => {
+  it('junta ocorrências e avulsos numa lista só, por data e depois por valor', () => {
     const items = buildDayItems(
-      [occ({ name: 'Zebra', date: '2026-08-25' }), occ({ name: 'Aluguel', date: '2026-08-25' })],
-      [entry({ name: 'Café', date: '2026-08-24' })],
+      [
+        occ({ name: 'Netflix', amount: 2_000, date: '2026-08-25' }),
+        occ({ name: 'Aluguel', amount: 128_000, date: '2026-08-25' }),
+      ],
+      [entry({ name: 'Café', amount: 750, date: '2026-08-24' })],
     );
 
     expect(items.map((i) => [i.date, i.name])).toEqual([
       ['2026-08-24', 'Café'],
       ['2026-08-25', 'Aluguel'],
-      ['2026-08-25', 'Zebra'],
+      ['2026-08-25', 'Netflix'],
     ]);
   });
 
+  it('valor decrescente vale para entrada e saída juntas', () => {
+    const items = buildDayItems(
+      [
+        occ({ name: 'Aluguel', amount: 128_000 }),
+        occ({ name: 'Salário', flow: 'in', amount: 520_000 }),
+        occ({ name: 'Netflix', amount: 2_000 }),
+      ],
+      [entry({ name: 'Feira', amount: 23_450 })],
+    );
+
+    expect(items.map((i) => i.name)).toEqual(['Salário', 'Aluguel', 'Feira', 'Netflix']);
+  });
+
+  it('valores iguais desempatam pelo nome', () => {
+    const items = buildDayItems([occ({ name: 'Zebra', amount: 500 }), occ({ name: 'Alfa', amount: 500 })], []);
+
+    expect(items.map((i) => i.name)).toEqual(['Alfa', 'Zebra']);
+  });
+
   it('avulso não tem status e ocorrência carrega o dela', () => {
-    const [avulso, ocorrencia] = buildDayItems([occ({ name: 'Zeta' })], [entry({ name: 'Alfa' })]);
+    const [avulso, ocorrencia] = buildDayItems(
+      [occ({ name: 'Zeta', amount: 100 })],
+      [entry({ name: 'Alfa', amount: 900 })],
+    );
 
     expect(avulso?.kind).toBe('entry');
     expect(avulso?.status).toBeUndefined();

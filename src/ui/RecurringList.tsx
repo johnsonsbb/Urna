@@ -6,7 +6,7 @@ import { formatMoney } from '../core/money';
 import type { Locale, Recurring } from '../core/types';
 import { db } from '../db/db';
 import { deleteRecurring, setRecurringActive } from '../db/recurrings';
-import { BUTTON } from './Controls';
+import { BUTTON, BUTTON_PRIMARY } from './Controls';
 import { CategoryIcon } from './CategoryIcon';
 
 /**
@@ -30,28 +30,32 @@ function Item({
 
   return (
     <li className="mt-2 rounded-card bg-slab p-3">
-      <div className="flex items-start gap-2">
-        <span className="mt-0.5 text-steel">
+      <div className="flex items-center gap-2">
+        <span
+          className="text-steel"
+          title={categoryLabel(recurring.categoryId)}
+          aria-label={categoryLabel(recurring.categoryId)}
+          role="img"
+        >
           <CategoryIcon categoryId={recurring.categoryId} />
         </span>
 
-        <div className="min-w-0 flex-1">
-          <p className={`truncate ${recurring.active ? '' : 'text-steel'}`}>{recurring.name}</p>
-          {/* "Pausado" fica fora do trecho que trunca: em 320px a regra corta
-              antes do fim e o estado sumiria junto. */}
-          <p className="flex gap-1 text-xs text-steel">
-            {!recurring.active && <span className="type-display shrink-0 font-semibold">PAUSADO ·</span>}
-            <span className="truncate">
-              {describeRule(recurring, locale)} · {categoryLabel(recurring.categoryId)}
-            </span>
-          </p>
-        </div>
+        <p className={`min-w-0 flex-1 truncate ${recurring.active ? '' : 'text-steel'}`}>
+          {recurring.name}
+        </p>
 
         <span className="type-num shrink-0 whitespace-nowrap">
           {recurring.isVariable && <span aria-hidden="true">~</span>}
           {formatMoney(recurring.amount, locale)}
         </span>
       </div>
+
+      {/* A regra é a informação do cartão: linha própria, até duas linhas, e
+          nunca trunca. A categoria sai daqui, quem a representa é o ícone. */}
+      <p className="mt-1 line-clamp-2 text-xs text-steel">
+        {!recurring.active && <span className="type-display font-semibold">PAUSADO · </span>}
+        {describeRule(recurring, locale)}
+      </p>
 
       {confirming ? (
         <div className="mt-2 border-t border-hairline pt-2">
@@ -65,7 +69,7 @@ function Item({
             <button
               type="button"
               onClick={() => void deleteRecurring(recurring.id)}
-              className={`${BUTTON} bg-ink text-slab`}
+              className={BUTTON_PRIMARY}
             >
               EXCLUIR
             </button>
@@ -136,7 +140,7 @@ export function RecurringList({ locale, onNew, onEdit }: Props) {
     <div>
       <header className="flex items-center gap-1 pt-[max(8px,env(safe-area-inset-top))] pb-1">
         <h1 className="type-display min-w-0 flex-1 truncate text-lead font-semibold">Recorrentes</h1>
-        <button type="button" onClick={onNew} className={`${BUTTON} bg-ink text-slab`}>
+        <button type="button" onClick={onNew} className={BUTTON_PRIMARY}>
           NOVO
         </button>
       </header>

@@ -5,7 +5,7 @@ import { todayISO } from '../core/dates';
 import { formatDayMonthYear } from '../core/week';
 import { parseAmountToCents } from '../core/money';
 import { addEntry } from '../db/entries';
-import { BUTTON, CONTROL, Field } from './Controls';
+import { BUTTON_ACCENT, BUTTON_DISABLED, CONTROL, Field } from './Controls';
 
 /**
  * Gasto avulso (seção 7.5): modal que sobe de baixo em 200ms. Três campos
@@ -101,7 +101,7 @@ export function EntrySheet({ locale = 'pt-BR', onClose }: { locale?: Locale; onC
           type="button"
           onClick={handleAdd}
           disabled={!canAdd}
-          className={`${BUTTON} mt-4 w-full ${canAdd ? 'bg-hivis text-ink' : 'border border-hairline text-steel'}`}
+          className={`${canAdd ? BUTTON_ACCENT : BUTTON_DISABLED} mt-4 w-full`}
         >
           ADICIONAR
         </button>

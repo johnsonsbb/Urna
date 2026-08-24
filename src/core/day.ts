@@ -61,7 +61,14 @@ export function buildDayItems(occurrences: Occurrence[], entries: Entry[]): DayI
     });
   }
 
-  items.sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name, 'pt-BR'));
+  // Dentro do dia, o maior valor primeiro: é o que se quer ver de relance.
+  // Ordem alfabética não carrega informação nenhuma. O nome só desempata.
+  items.sort(
+    (a, b) =>
+      a.date.localeCompare(b.date) ||
+      b.amount - a.amount ||
+      a.name.localeCompare(b.name, 'pt-BR'),
+  );
   return items;
 }
 
