@@ -7,6 +7,7 @@ import { Home } from './ui/Home';
 import { Panel } from './ui/Panel';
 import { RecurringForm } from './ui/RecurringForm';
 import { RecurringList } from './ui/RecurringList';
+import { Settings } from './ui/Settings';
 
 /**
  * Navegação mínima: duas abas e o formulário como tela cheia por cima delas.
@@ -37,6 +38,12 @@ export function App() {
         {route.name === 'painel' && (
           <div className="mx-auto w-full max-w-[480px] px-4">
             <Panel locale={settings.locale} weekStartsOn={settings.weekStartsOn} />
+          </div>
+        )}
+
+        {route.name === 'ajustes' && (
+          <div className="mx-auto w-full max-w-[480px] px-4">
+            <Settings settings={settings} />
           </div>
         )}
 

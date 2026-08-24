@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
  * nos recorrentes. Só os destinos que já existem aparecem.
  */
 
-export type Tab = 'semana' | 'recorrentes' | 'painel';
+export type Tab = 'semana' | 'recorrentes' | 'painel' | 'ajustes';
 
 function Icon({ tab }: { tab: Tab }) {
   return (
@@ -24,10 +24,16 @@ function Icon({ tab }: { tab: Tab }) {
           <path d="M8 1.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 8 1.8" />
           <path d="M8 4.8V8l2.4 1.5" />
         </>
-      ) : (
+      ) : tab === 'painel' ? (
         <>
           <path d="M2 13.6h12" />
           <path d="M4.2 13.6V8M8 13.6V3.4M11.8 13.6V6" />
+        </>
+      ) : (
+        <>
+          <path d="M2.4 5.2h11.2M2.4 10.8h11.2" />
+          <path d="M10.4 5.2a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0" />
+          <path d="M6.6 10.8a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0" />
         </>
       )}
     </svg>
@@ -65,7 +71,9 @@ function TabButton({
 export function BottomBar({ current, onSelect }: { current: Tab; onSelect: (tab: Tab) => void }) {
   return (
     <nav className="sticky bottom-0 border-t border-hairline bg-concrete pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-[480px] gap-1 px-4 py-1">
+      {/* Em 320px as quatro abas somam 276px de texto: com px-4 e vão entre
+          elas não caberia, então a barra usa respiro menor que o resto. */}
+      <div className="mx-auto flex max-w-[480px] px-2 py-1">
         <TabButton tab="semana" current={current} onSelect={onSelect}>
           SEMANA
         </TabButton>
@@ -74,6 +82,9 @@ export function BottomBar({ current, onSelect }: { current: Tab; onSelect: (tab:
         </TabButton>
         <TabButton tab="painel" current={current} onSelect={onSelect}>
           PAINEL
+        </TabButton>
+        <TabButton tab="ajustes" current={current} onSelect={onSelect}>
+          AJUSTES
         </TabButton>
       </div>
     </nav>

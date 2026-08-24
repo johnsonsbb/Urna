@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Marca provisória: o relevo da semana, que é o elemento assinatura do app.
+       Ink sobre hivis, sem outra cor. Trocar quando houver arte definitiva. -->
+  <rect width="512" height="512" fill="#D8F034"/>
+  <g fill="#15181C">
+    <rect x="116" y="250" width="52" height="70"/>
+    <rect x="192" y="170" width="52" height="150"/>
+    <rect x="268" y="276" width="52" height="44"/>
+    <rect x="344" y="210" width="52" height="110"/>
+    <rect x="100" y="320" width="312" height="6"/>
+    <rect x="192" y="342" width="52" height="46"/>
+  </g>
+</svg>

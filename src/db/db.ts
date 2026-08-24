@@ -26,7 +26,16 @@ export const SETTINGS_ID = 'app';
 
 export interface StoredSettings extends Settings {
   id: string;
+  /**
+   * Quando saiu o último backup. Fica só no registro guardado, fora da
+   * interface `Settings` da seção 5.4, porque é estado do app e não uma
+   * preferência do usuário.
+   */
+  lastBackupAt?: string;
 }
+
+/** Settings como o app usa: as preferências mais o carimbo do último backup. */
+export type AppSettings = Settings & { lastBackupAt?: string };
 
 export const DEFAULT_SETTINGS: Settings = {
   weekStartsOn: 1,
@@ -58,7 +67,7 @@ class CashFlowDB extends Dexie {
 export const db = new CashFlowDB();
 
 /** Settings com os padrões aplicados; não grava nada se ainda não existir. */
-export async function getSettings(): Promise<Settings> {
+export async function getSettings(): Promise<AppSettings> {
   const stored = await db.settings.get(SETTINGS_ID);
   if (!stored) return { ...DEFAULT_SETTINGS };
 
@@ -66,7 +75,7 @@ export async function getSettings(): Promise<Settings> {
   return { ...DEFAULT_SETTINGS, ...settings };
 }
 
-export async function saveSettings(patch: Partial<Settings>): Promise<void> {
+export async function saveSettings(patch: Partial<AppSettings>): Promise<void> {
   const current = await getSettings();
   await db.settings.put({ ...current, ...patch, schemaVersion: BACKUP_SCHEMA_VERSION, id: SETTINGS_ID });
 }

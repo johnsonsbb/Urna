@@ -11,9 +11,9 @@ O escopo completo está em [`docs/escopo.md`](docs/escopo.md).
 
 ## Estado atual
 
-**Fase 4 (painel) — pronta.** Além da semana e dos cadastros, o painel mostra
-os quatro totais e a quebra de saídas por categoria em semana, quinzena, mês
-e ano.
+**v1 completa.** As cinco fases estão prontas: a semana, os cadastros, o
+painel e o PWA com backup. O app instala na tela inicial, abre sem internet e
+exporta os dados num JSON.
 
 | Fase | O que é | Estado |
 |---|---|---|
@@ -21,7 +21,7 @@ e ano.
 | 2 | A semana: régua, lista do dia, navegação | pronta |
 | 3 | Cadastros: CRUD de recorrentes, gasto avulso | pronta |
 | 4 | Painel: períodos, totais, categorias | pronta |
-| 5 | PWA e backup | a fazer |
+| 5 | PWA e backup | pronta |
 
 ## Rodar
 
@@ -46,9 +46,10 @@ src/core/       módulo puro: sem React, sem banco
   day.ts          junta ocorrências e avulsos, e soma os totais
   describe.ts     a regra do recorrente em linguagem natural
   period.ts       os quatro períodos do painel
+  backup.ts       formato do arquivo de backup e validação da importação
 src/ui/         componentes das telas
-src/db/         Dexie: três tabelas mais o registro de settings, e as escritas
-                de override
+src/db/         Dexie: três tabelas mais o registro de settings, as escritas
+                e o exportar/importar
 src/styles.css  tokens do Tailwind v4 no bloco @theme e os @font-face
 public/fonts/   .woff2 auto-hospedados
 ```
@@ -75,3 +76,21 @@ OFL e versionadas em `public/fonts` como `.woff2`. Sem CDN: o app tem que abrir
 sem internet. Archivo entra pelo eixo variável `wdth` em 112, via a utilidade
 `type-display`; todo número monetário usa Plex Mono com `tabular-nums`, via a
 utilidade `type-num`.
+
+## PWA
+
+O manifest e o service worker saem do `vite-plugin-pwa` no build, e os ícones
+do `@vite-pwa/assets-generator` a partir de `public/icon-source.svg` — um
+desenho provisório do relevo da semana, ink sobre hivis, para trocar quando
+houver arte definitiva. Rode `pnpm icons` depois de mexer no SVG.
+
+O service worker precacheia tudo, fontes incluídas: o app abre e funciona sem
+rede, porque não existe servidor mesmo. `navigator.storage.persist()` é
+chamado em toda abertura, e os Ajustes mostram se o modo persistente foi
+concedido e quanto espaço está em uso.
+
+**Backup é parte do produto.** O IndexedDB do Safari não tem garantia de
+durabilidade: limpar o histórico derruba os dados. Exportar gera
+`cashflow-backup-AAAA-MM-DD.json` pelo share sheet do iOS, e importar pergunta
+se é para substituir tudo ou mesclar — mesclar só acrescenta id que ainda não
+existe aqui e deixa as preferências atuais em paz.
