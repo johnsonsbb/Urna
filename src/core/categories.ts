@@ -8,25 +8,26 @@ export interface Category {
   id: string;
   label: string;
   flow: Flow;
-  icon: string;
+  /** Chave do desenho. `null` quando não há ícone óbvio: aí vale a inicial. */
+  icon: string | null;
 }
 
 export const OUT_CATEGORIES: readonly Category[] = [
-  { id: 'moradia', label: 'Moradia', flow: 'out', icon: 'roof' },
-  { id: 'contas', label: 'Contas', flow: 'out', icon: 'bolt' },
-  { id: 'transporte', label: 'Transporte', flow: 'out', icon: 'wheel' },
+  { id: 'moradia', label: 'Moradia', flow: 'out', icon: 'house' },
+  { id: 'contas', label: 'Contas', flow: 'out', icon: 'receipt' },
+  { id: 'transporte', label: 'Transporte', flow: 'out', icon: 'car' },
   { id: 'mercado', label: 'Mercado', flow: 'out', icon: 'basket' },
-  { id: 'assinaturas', label: 'Assinaturas', flow: 'out', icon: 'loop' },
-  { id: 'saude', label: 'Saúde', flow: 'out', icon: 'cross' },
-  { id: 'lazer', label: 'Lazer', flow: 'out', icon: 'arc' },
-  { id: 'trabalho', label: 'Trabalho', flow: 'out', icon: 'wrench' },
-  { id: 'outros', label: 'Outros', flow: 'out', icon: 'dots' },
+  { id: 'assinaturas', label: 'Assinaturas', flow: 'out', icon: 'refresh' },
+  { id: 'saude', label: 'Saúde', flow: 'out', icon: 'medkit' },
+  { id: 'lazer', label: 'Lazer', flow: 'out', icon: 'ticket' },
+  { id: 'trabalho', label: 'Trabalho', flow: 'out', icon: 'briefcase' },
+  { id: 'outros', label: 'Outros', flow: 'out', icon: null },
 ] as const;
 
 export const IN_CATEGORIES: readonly Category[] = [
-  { id: 'salario', label: 'Salário', flow: 'in', icon: 'stack' },
-  { id: 'extra', label: 'Extra', flow: 'in', icon: 'plus' },
-  { id: 'entrada-outros', label: 'Outros', flow: 'in', icon: 'dots' },
+  { id: 'salario', label: 'Salário', flow: 'in', icon: 'banknote' },
+  { id: 'extra', label: 'Extra', flow: 'in', icon: null },
+  { id: 'entrada-outros', label: 'Outros', flow: 'in', icon: null },
 ] as const;
 
 export const CATEGORIES: readonly Category[] = [...OUT_CATEGORIES, ...IN_CATEGORIES];

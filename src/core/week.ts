@@ -33,7 +33,7 @@ export function isSameWeek(a: ISODate, b: ISODate, weekStartsOn: WeekStart): boo
 }
 
 const dayMonthCache = new Map<Locale, Intl.DateTimeFormat>();
-const weekdayCache = new Map<string, Intl.DateTimeFormat>();
+const weekdayCache = new Map<Locale, Intl.DateTimeFormat>();
 
 /** "25 ago" — sem o "de" que o pt-BR insere por padrão, e sem o ponto final. */
 export function formatDayMonth(iso: ISODate, locale: Locale = 'pt-BR'): string {
@@ -56,19 +56,15 @@ export function formatWeekRange(week: Week, locale: Locale = 'pt-BR'): string {
 }
 
 /**
- * Rótulo do dia da semana em caixa alta: 'short' dá SEG, 'narrow' dá S.
- * A escolha entre os dois é do CSS, na faixa de 360px (seção 9.5).
+ * Rótulo do dia da semana em caixa alta: SEG, TER, QUA. Três letras em
+ * qualquer largura — em português as iniciais repetem (S, T, Q, Q, S, S, D) e
+ * uma letra só deixaria de informar.
  */
-export function weekdayLabel(
-  iso: ISODate,
-  width: 'short' | 'narrow',
-  locale: Locale = 'pt-BR',
-): string {
-  const key = `${locale}:${width}`;
-  let fmt = weekdayCache.get(key);
+export function weekdayLabel(iso: ISODate, locale: Locale = 'pt-BR'): string {
+  let fmt = weekdayCache.get(locale);
   if (!fmt) {
-    fmt = new Intl.DateTimeFormat(locale, { weekday: width });
-    weekdayCache.set(key, fmt);
+    fmt = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+    weekdayCache.set(locale, fmt);
   }
 
   return fmt.format(isoToDate(iso)).replace(/\.$/, '').toUpperCase();

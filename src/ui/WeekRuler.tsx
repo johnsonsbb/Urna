@@ -12,6 +12,8 @@ import { dayNumber, weekdayLabel, type Week } from '../core/week';
  * sua faixa, senão um salário achataria o relevo inteiro das contas.
  */
 
+// O realce do dia de hoje ocupa a coluna inteira, de ponta a ponta da régua,
+// sem canto arredondado: é uma faixa de fundo, não um cartão solto.
 const HEIGHT = 88;
 const LABEL_ROW = 16;
 const NUMBER_ROW = 20;
@@ -49,8 +51,8 @@ export function WeekRuler({ week, today, selected, locale, totalsByDay, peaks, o
             type="button"
             onClick={() => onSelect(day)}
             aria-pressed={isSelected}
-            aria-label={`${weekdayLabel(day, 'short', locale)} ${dayNumber(day)}`}
-            className={`relative flex flex-col items-center rounded-btn transition-colors duration-[120ms] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink ${
+            aria-label={`${weekdayLabel(day, locale)} ${dayNumber(day)}`}
+            className={`relative flex flex-col items-center transition-colors duration-[120ms] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink ${
               isToday ? 'bg-slab' : ''
             }`}
             style={{ height: HEIGHT }}
@@ -66,8 +68,7 @@ export function WeekRuler({ week, today, selected, locale, totalsByDay, peaks, o
               className="type-display flex items-center text-xs text-steel"
               style={{ height: LABEL_ROW }}
             >
-              <span className="min-[360px]:hidden">{weekdayLabel(day, 'narrow', locale)}</span>
-              <span className="hidden min-[360px]:inline">{weekdayLabel(day, 'short', locale)}</span>
+              {weekdayLabel(day, locale)}
             </span>
 
             <span
@@ -81,7 +82,7 @@ export function WeekRuler({ week, today, selected, locale, totalsByDay, peaks, o
 
             <span className="flex w-full items-end justify-center" style={{ height: OUT_AREA }}>
               <span
-                className="w-[45%] bg-ink"
+                className="w-[60%] bg-ink"
                 style={{ height: barHeight(totals?.out ?? 0, peaks.out, OUT_AREA) }}
               />
             </span>
@@ -90,7 +91,7 @@ export function WeekRuler({ week, today, selected, locale, totalsByDay, peaks, o
 
             <span className="flex w-full items-start justify-center" style={{ height: IN_AREA }}>
               <span
-                className="w-[45%] bg-hivis"
+                className="w-[60%] bg-hivis"
                 style={{ height: barHeight(totals?.in ?? 0, peaks.in, IN_AREA) }}
               />
             </span>

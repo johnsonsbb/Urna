@@ -70,11 +70,11 @@ describe('rótulos', () => {
     expect(formatWeekRange(weekOf('2026-08-25', 1))).toBe('24 ago a 30 ago');
   });
 
-  it('dia da semana em caixa alta, com três letras ou uma', () => {
-    expect(weekdayLabel('2026-08-24', 'short')).toBe('SEG');
-    expect(weekdayLabel('2026-08-29', 'short')).toBe('SÁB');
-    expect(weekdayLabel('2026-08-24', 'narrow')).toBe('S');
-    expect(weekdayLabel('2026-08-25', 'narrow')).toBe('T');
+  it('dia da semana em caixa alta, sempre com três letras', () => {
+    expect(weekdayLabel('2026-08-24')).toBe('SEG');
+    expect(weekdayLabel('2026-08-25')).toBe('TER');
+    expect(weekdayLabel('2026-08-29')).toBe('SÁB');
+    expect(weekdayLabel('2026-08-30')).toBe('DOM');
   });
 
   it('número do dia sai sem zero à esquerda', () => {
