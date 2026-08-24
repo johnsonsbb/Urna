@@ -194,11 +194,17 @@ export function Settings({ settings }: { settings: AppSettings }) {
               <button type="button" onClick={() => setPending(null)} className={`${BUTTON} text-steel`}>
                 CANCELAR
               </button>
-              <button type="button" onClick={() => void applyImport('mesclar')} className={`${BUTTON} border border-hairline`}>
-                MESCLAR
-              </button>
-              <button type="button" onClick={() => void applyImport('substituir')} className={BUTTON_PRIMARY}>
+              {/* Substituir apaga o que está no aparelho: fica secundário e
+                  longe da ponta que o dedo acerta por reflexo. */}
+              <button
+                type="button"
+                onClick={() => void applyImport('substituir')}
+                className={`${BUTTON} border border-hairline bg-slab`}
+              >
                 SUBSTITUIR TUDO
+              </button>
+              <button type="button" onClick={() => void applyImport('mesclar')} className={BUTTON_PRIMARY}>
+                MESCLAR
               </button>
             </div>
           </div>
