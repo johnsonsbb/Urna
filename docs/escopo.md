@@ -209,6 +209,8 @@ O dia de hoje conta como `previsto` até virar a meia-noite. Não existe estado 
 
 **Navegação.** Barra inferior fixa com quatro abas: Semana, Recorrentes, Painel, Ajustes. Ícones em `steel`, aba ativa em `ink`. Respeita `env(safe-area-inset-bottom)`. Formulários e modais cobrem a barra, com Cancelar e Salvar no topo.
 
+Abaixo de 360px os rótulos das abas somem e ficam só os ícones. Quatro rótulos não cabem em 320px com respiro: encostados um no outro eles leem como uma frase corrida, não como quatro botões. O título no topo de cada tela já diz onde o usuário está.
+
 Nenhum ícone pode se repetir entre a barra de navegação e as categorias. Se o glifo já é usado por uma categoria, a aba precisa de outro.
 
 ### 7.1 Home: a semana
@@ -405,7 +407,7 @@ Mostrar nos Ajustes o resultado de `navigator.storage.persisted()` e a estimativ
 O IndexedDB do Safari não tem garantia de durabilidade. Instalar na tela inicial e pedir modo persistente (seção 9.4) reduz muito o risco, mas o WebKit ainda pode limpar tudo se o iPhone ficar sem espaço, e limpar o histórico do Safari também derruba os dados. O backup manual é parte do produto, não um extra.
 
 - **Exportar:** gera um `.json` com as três tabelas mais settings e `schemaVersion`, nome do arquivo `cashflow-backup-YYYY-MM-DD.json`. Dispara o share sheet do iOS
-- **Importar:** aceita o mesmo formato, valida o `schemaVersion`, e pergunta se é para **substituir tudo** ou **mesclar** (mesclar ignora ids já existentes)
+- **Importar:** aceita o mesmo formato, valida o `schemaVersion`, e pergunta se é para **substituir tudo** ou **mesclar** (mesclar ignora ids já existentes). Na caixa de confirmação, **mesclar é a ação primária sólida e substituir é a secundária**: substituir apaga dados existentes, e a ação destrutiva nunca é a que o dedo acerta por reflexo
 - Nos Ajustes, mostrar a data do último backup e um aviso discreto se passou de 30 dias
 
 ---
