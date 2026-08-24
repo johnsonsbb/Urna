@@ -46,7 +46,7 @@ Todas as escolhas abaixo foram verificadas em agosto de 2026.
 | PWA | **vite-plugin-pwa** (Workbox) | 1.3.x | Gera manifest e service worker |
 | Ícones | **@vite-pwa/assets-generator** | 1.x | Gera todos os tamanhos a partir de uma imagem só |
 | Gráficos | SVG na mão, sem biblioteca | - | São 2 gráficos simples, biblioteca é peso morto |
-| Testes | **Vitest** | 3.x | Integra com o Vite sem configuração extra |
+| Testes | **Vitest** | 4.x | O 3.x só aceita Vite 7, e a tabela fixa Vite 8 |
 | Fontes | `.woff2` auto-hospedados em `public/fonts` | - | O app tem que abrir offline, CDN não serve |
 
 **Sem gerenciador de estado.** O `useLiveQuery` do Dexie faz o componente reagir a mudanças no IndexedDB automaticamente. Não instale Redux, Zustand, React Query nem monte Context para dados. Estado local de formulário com `useState` e pronto.
@@ -123,6 +123,8 @@ interface Override {
 
 ### 5.4 `settings` (registro único)
 
+Quarta tabela do Dexie, com chave fixa `'app'`. Fica no IndexedDB e não no localStorage, para sair junto no backup da seção 10.
+
 ```ts
 interface Settings {
   weekStartsOn: 0 | 1;     // padrão 1 (segunda)
@@ -149,7 +151,9 @@ function expandOccurrences(
   recurrings: Recurring[],
   overrides: Override[],
   from: string,   // ISO 'YYYY-MM-DD', inclusivo
-  to: string      // ISO 'YYYY-MM-DD', inclusivo
+  to: string,     // ISO 'YYYY-MM-DD', inclusivo
+  today?: string  // ISO. Injetável para tornar o status determinístico nos testes.
+                  // Omitido, lê o relógio do sistema
 ): Occurrence[]
 ```
 
