@@ -207,6 +207,10 @@ O dia de hoje conta como `previsto` até virar a meia-noite. Não existe estado 
 
 ## 7. Telas
 
+**Navegação.** Barra inferior fixa com quatro abas: Semana, Recorrentes, Painel, Ajustes. Ícones em `steel`, aba ativa em `ink`. Respeita `env(safe-area-inset-bottom)`. Formulários e modais cobrem a barra, com Cancelar e Salvar no topo.
+
+Nenhum ícone pode se repetir entre a barra de navegação e as categorias. Se o glifo já é usado por uma categoria, a aba precisa de outro.
+
 ### 7.1 Home: a semana
 
 Tela de abertura. Sem menu, sem boas-vindas, sem onboarding. Abre já mostrando a semana atual.
@@ -216,7 +220,7 @@ Tela de abertura. Sem menu, sem boas-vindas, sem onboarding. Abre já mostrando 
 1. **Cabeçalho compacto:** intervalo da semana ("25 ago a 31 ago") e setas para navegar entre semanas. Botão "hoje" aparece só quando você não está na semana atual.
 2. **A régua da semana** (elemento assinatura, detalhado na seção 8).
 3. **Linha de resultado:** entra, sai, sobra. A "sobra" é o número dominante da tela.
-4. **Lista do dia selecionado:** por padrão, hoje. Cada item mostra nome, categoria, valor, e um check tocável para marcar pagamento antecipado. Contas variáveis mostram o valor com marca de estimativa e permitem editar o valor real ali mesmo.
+4. **Lista do dia selecionado:** por padrão, hoje. Ordenada por valor decrescente, entradas e saídas juntas. Nunca em ordem alfabética, que não carrega informação nenhuma. Cada item mostra nome, categoria, valor, e um check tocável para marcar pagamento antecipado. Contas variáveis mostram o valor com marca de estimativa e permitem editar o valor real ali mesmo.
 5. **Botão flutuante** de adicionar gasto avulso.
 
 **Comportamento:** tocar numa coluna da régua troca a lista abaixo. Arrastar para o lado troca de semana.
@@ -234,6 +238,8 @@ A quinzena é calculada a partir da semana atual mais a seguinte, não como "met
 ### 7.3 Recorrentes
 
 Lista única, separada em duas seções: **Sai** e **Entra**. Cada item mostra nome, valor, e a regra em linguagem natural ("toda quinta", "dia 15 de cada mês", "a cada 14 dias desde 3 ago").
+
+A regra é a informação principal do cartão e **nunca trunca**: ela ocupa linha própria e pode quebrar em até duas linhas. A categoria não aparece nessa linha, o ícone já a representa. Só o nome trunca.
 
 Ações por item: editar, pausar, excluir. Excluir pede confirmação e avisa que o histórico some junto.
 
