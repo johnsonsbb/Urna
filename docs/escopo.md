@@ -138,6 +138,8 @@ interface Settings {
 
 Lista fixa embutida no código na v1 (não editável pelo usuário ainda). Cada uma com id, rótulo e ícone: Moradia, Contas, Transporte, Mercado, Assinaturas, Saúde, Lazer, Trabalho, Outros. Para entradas: Salário, Extra, Outros.
 
+Cada ícone precisa representar a categoria de forma reconhecível. Nada de reticências, hambúrguer, ponto ou qualquer glifo genérico de interface: o usuário lê isso como botão quebrado, não como categoria. Se não houver ícone óbvio para uma categoria, use a inicial da categoria num círculo em `steel`, que é honesto e não parece bug.
+
 ---
 
 ## 6. Lógica de recorrência
@@ -375,7 +377,7 @@ Mostrar nos Ajustes o resultado de `navigator.storage.persisted()` e a estimativ
 - **Padrão (até 767px):** layout de coluna única ocupando a largura toda, com 16px de respiro nas laterais.
 - **768px para cima:** o conteúdo trava numa coluna centralizada de no máximo 480px, com o fundo `concrete` preenchendo o resto. Nada de reorganizar em duas colunas, nada de sidebar, nada de layout de desktop. O app foi desenhado pra ser segurado na mão, e esticar isso numa tela de 27 polegadas só piora.
 
-**Régua da semana em tela estreita.** Sete colunas de largura igual via CSS Grid (`grid-cols-7`), com as colunas em fração, nunca em pixel fixo. Em 320px cada coluna fica com cerca de 40px, o que ainda respeita o alvo mínimo de toque. O rótulo do dia usa três letras (SEG, TER), e abaixo de 360px cai para uma letra (S, T, Q). A altura da régua é fixa em 88px, não escala com a largura.
+**Régua da semana em tela estreita.** Sete colunas de largura igual via CSS Grid (`grid-cols-7`), com as colunas em fração, nunca em pixel fixo. Em 320px cada coluna fica com cerca de 40px, o que ainda respeita o alvo mínimo de toque. O rótulo do dia usa três letras (SEG, TER) em **todas** as larguras: em 320px a coluna tem 41px e o rótulo de 12px ocupa cerca de 28px, então cabe. Não abreviar para uma letra, porque em português as iniciais repetem (S, T, Q, Q, S, S, D) e o rótulo deixa de informar. A altura da régua é fixa em 88px, não escala com a largura.
 
 **Texto e números.** O nome do item trunca com reticências, o valor **nunca** trunca nem quebra linha: o valor é a informação, o nome é o rótulo. Use `min-width: 0` nos containers flex, senão o truncamento não funciona.
 
