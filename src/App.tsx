@@ -4,6 +4,7 @@ import type { Recurring } from './core/types';
 import { DEFAULT_SETTINGS, getSettings } from './db/db';
 import { BottomBar, type Tab } from './ui/BottomBar';
 import { Home } from './ui/Home';
+import { Panel } from './ui/Panel';
 import { RecurringForm } from './ui/RecurringForm';
 import { RecurringList } from './ui/RecurringList';
 
@@ -30,6 +31,12 @@ export function App() {
               onNew={() => setRoute({ name: 'form' })}
               onEdit={(recurring) => setRoute({ name: 'form', recurring })}
             />
+          </div>
+        )}
+
+        {route.name === 'painel' && (
+          <div className="mx-auto w-full max-w-[480px] px-4">
+            <Panel locale={settings.locale} weekStartsOn={settings.weekStartsOn} />
           </div>
         )}
 

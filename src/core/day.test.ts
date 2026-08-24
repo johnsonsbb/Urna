@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildDayItems, itemsOn, peaks, sumTotals, totalsByDay } from './day';
+import { buildDayItems, byCategory, itemsOn, panelTotals, peaks, sumTotals, totalsByDay } from './day';
 import type { Entry, Occurrence } from './types';
 
 function occ(partial: Partial<Occurrence> = {}): Occurrence {
@@ -125,5 +125,69 @@ describe('itemsOn', () => {
 
     expect(itemsOn(items, '2026-08-25')).toHaveLength(1);
     expect(itemsOn(items, '2026-08-31')).toEqual([]);
+  });
+});
+
+describe('painel', () => {
+  const items = buildDayItems(
+    [
+      occ({ name: 'Aluguel', amount: 128_000, categoryId: 'moradia' }),
+      occ({ name: 'Netflix', amount: 2_299, categoryId: 'assinaturas' }),
+      occ({ name: 'Salário', flow: 'in', amount: 520_000, categoryId: 'salario' }),
+    ],
+    [
+      entry({ id: 'e1', name: 'Feira', amount: 23_450, categoryId: 'mercado' }),
+      entry({ id: 'e2', name: 'Café', amount: 750, categoryId: 'outros' }),
+      entry({ id: 'e3', name: 'Bico', flow: 'in', amount: 15_000, categoryId: 'extra' }),
+    ],
+  );
+
+  it('separa saída recorrente de saída avulsa', () => {
+    expect(panelTotals(items)).toEqual({
+      entradas: 535_000,
+      saidasRecorrentes: 130_299,
+      saidasAvulsas: 24_200,
+      sobra: 380_501,
+    });
+  });
+
+  it('sobra negativa é só um número negativo', () => {
+    const magros = buildDayItems([occ({ amount: 30_000 })], []);
+
+    expect(panelTotals(magros).sobra).toBe(-30_000);
+  });
+
+  it('período vazio zera os quatro', () => {
+    expect(panelTotals([])).toEqual({
+      entradas: 0,
+      saidasRecorrentes: 0,
+      saidasAvulsas: 0,
+      sobra: 0,
+    });
+  });
+
+  it('quebra por categoria soma recorrente com avulso e ordena do maior', () => {
+    expect(byCategory(items, 'out')).toEqual([
+      { categoryId: 'moradia', total: 128_000 },
+      { categoryId: 'mercado', total: 23_450 },
+      { categoryId: 'assinaturas', total: 2_299 },
+      { categoryId: 'outros', total: 750 },
+    ]);
+  });
+
+  it('a quebra de entrada é uma lista separada', () => {
+    expect(byCategory(items, 'in')).toEqual([
+      { categoryId: 'salario', total: 520_000 },
+      { categoryId: 'extra', total: 15_000 },
+    ]);
+  });
+
+  it('duas linhas na mesma categoria viram uma barra só', () => {
+    const mesmaCategoria = buildDayItems(
+      [occ({ name: 'Luz', amount: 18_000, categoryId: 'contas' })],
+      [entry({ name: 'Água', amount: 7_000, categoryId: 'contas' })],
+    );
+
+    expect(byCategory(mesmaCategoria, 'out')).toEqual([{ categoryId: 'contas', total: 25_000 }]);
   });
 });

@@ -11,17 +11,16 @@ O escopo completo está em [`docs/escopo.md`](docs/escopo.md).
 
 ## Estado atual
 
-**Fase 3 (cadastros) — pronta.** Além da semana, dá para cadastrar, editar,
-pausar e excluir recorrentes, com a regra escrita em linguagem natural e a
-prévia das próximas ocorrências no formulário, e registrar gasto avulso pelo
-botão flutuante.
+**Fase 4 (painel) — pronta.** Além da semana e dos cadastros, o painel mostra
+os quatro totais e a quebra de saídas por categoria em semana, quinzena, mês
+e ano.
 
 | Fase | O que é | Estado |
 |---|---|---|
 | 1 | Núcleo: tokens, schema, recorrência | pronta |
 | 2 | A semana: régua, lista do dia, navegação | pronta |
 | 3 | Cadastros: CRUD de recorrentes, gasto avulso | pronta |
-| 4 | Painel: períodos, totais, categorias | a fazer |
+| 4 | Painel: períodos, totais, categorias | pronta |
 | 5 | PWA e backup | a fazer |
 
 ## Rodar
@@ -46,6 +45,7 @@ src/core/       módulo puro: sem React, sem banco
   week.ts         semana: intervalo, navegação e rótulos
   day.ts          junta ocorrências e avulsos, e soma os totais
   describe.ts     a regra do recorrente em linguagem natural
+  period.ts       os quatro períodos do painel
 src/ui/         componentes das telas
 src/db/         Dexie: três tabelas mais o registro de settings, e as escritas
                 de override

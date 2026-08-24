@@ -118,3 +118,50 @@ export function peaks(byDay: Map<ISODate, Totals>): { out: number; in: number } 
 
   return { out, in: inPeak };
 }
+
+/** Os quatro totais do painel (seção 7.2). */
+export interface PanelTotals {
+  entradas: number;
+  saidasRecorrentes: number;
+  saidasAvulsas: number;
+  /** entradas menos as duas saídas. Pode ser negativo. */
+  sobra: number;
+}
+
+export function panelTotals(items: DayItem[]): PanelTotals {
+  let entradas = 0;
+  let saidasRecorrentes = 0;
+  let saidasAvulsas = 0;
+
+  for (const item of items) {
+    if (item.flow === 'in') entradas += item.amount;
+    else if (item.kind === 'occurrence') saidasRecorrentes += item.amount;
+    else saidasAvulsas += item.amount;
+  }
+
+  return {
+    entradas,
+    saidasRecorrentes,
+    saidasAvulsas,
+    sobra: entradas - saidasRecorrentes - saidasAvulsas,
+  };
+}
+
+export interface CategoryTotal {
+  categoryId: string;
+  total: number;
+}
+
+/** Quebra por categoria de um fluxo só, do maior para o menor. */
+export function byCategory(items: DayItem[], flow: Flow): CategoryTotal[] {
+  const totals = new Map<string, number>();
+
+  for (const item of items) {
+    if (item.flow !== flow) continue;
+    totals.set(item.categoryId, (totals.get(item.categoryId) ?? 0) + item.amount);
+  }
+
+  return [...totals]
+    .map(([categoryId, total]) => ({ categoryId, total }))
+    .sort((a, b) => b.total - a.total || a.categoryId.localeCompare(b.categoryId, 'pt-BR'));
+}

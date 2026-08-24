@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
  * nos recorrentes. Só os destinos que já existem aparecem.
  */
 
-export type Tab = 'semana' | 'recorrentes';
+export type Tab = 'semana' | 'recorrentes' | 'painel';
 
 function Icon({ tab }: { tab: Tab }) {
   return (
@@ -17,12 +17,17 @@ function Icon({ tab }: { tab: Tab }) {
           <path d="M2.5 3.5h11v10h-11z" />
           <path d="M5.5 2v2M10.5 2v2" />
         </>
-      ) : (
+      ) : tab === 'recorrentes' ? (
         /* Relógio. A seta circular já é a categoria Assinaturas, e o mesmo
            glifo em dois lugares passa a significar duas coisas. */
         <>
           <path d="M8 1.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 8 1.8" />
           <path d="M8 4.8V8l2.4 1.5" />
+        </>
+      ) : (
+        <>
+          <path d="M2 13.6h12" />
+          <path d="M4.2 13.6V8M8 13.6V3.4M11.8 13.6V6" />
         </>
       )}
     </svg>
@@ -66,6 +71,9 @@ export function BottomBar({ current, onSelect }: { current: Tab; onSelect: (tab:
         </TabButton>
         <TabButton tab="recorrentes" current={current} onSelect={onSelect}>
           RECORRENTES
+        </TabButton>
+        <TabButton tab="painel" current={current} onSelect={onSelect}>
+          PAINEL
         </TabButton>
       </div>
     </nav>
