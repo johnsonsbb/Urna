@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { categoryLabel } from '../core/categories';
 import { buildDayItems, byCategory, panelTotals } from '../core/day';
 import { todayISO } from '../core/dates';
-import { formatMoney } from '../core/money';
+import { balanceOf, formatMoney } from '../core/money';
 import { periodOf, PERIOD_KINDS, type PeriodKind } from '../core/period';
 import { expandOccurrences } from '../core/recurrence';
 import type { Locale } from '../core/types';
@@ -63,6 +63,7 @@ export function Panel({ locale, weekStartsOn }: { locale: Locale; weekStartsOn: 
   }, [data, period.start, period.end]);
 
   const totals = panelTotals(items);
+  const balance = balanceOf(totals.sobra);
   const categories = byCategory(items, 'out');
   const biggest = categories[0]?.total ?? 0;
 
@@ -86,9 +87,9 @@ export function Panel({ locale, weekStartsOn }: { locale: Locale; weekStartsOn: 
         <Total label="SAÍDAS AVULSAS" value={totals.saidasAvulsas} locale={locale} />
 
         <div className="mt-3">
-          <p className="type-display text-xs text-steel">SOBRA</p>
+          <p className="type-display text-xs text-steel">{balance.label}</p>
           <p className="type-num whitespace-nowrap text-title font-semibold">
-            {formatMoney(totals.sobra, locale)}
+            {formatMoney(balance.amount, locale)}
           </p>
         </div>
       </section>
@@ -113,11 +114,14 @@ export function Panel({ locale, weekStartsOn }: { locale: Locale; weekStartsOn: 
                     {formatMoney(category.total, locale)}
                   </span>
                 </div>
-                <div
-                  className="mt-1 h-2 bg-ink"
-                  style={{ width: `${Math.max(1, (category.total / biggest) * 100)}%` }}
-                  aria-hidden="true"
-                />
+                {/* O trilho ocupa a largura toda: sem ele, uma categoria
+                    pequena vira um toco solto que parece defeito. */}
+                <div className="mt-1 h-2 w-full bg-hairline" aria-hidden="true">
+                  <div
+                    className="h-2 bg-ink"
+                    style={{ width: `${Math.max(1, (category.total / biggest) * 100)}%` }}
+                  />
+                </div>
               </li>
             ))}
           </ul>

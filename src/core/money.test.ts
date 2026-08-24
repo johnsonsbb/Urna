@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatMoney, parseAmountToCents } from './money';
+import { balanceOf, formatMoney, parseAmountToCents } from './money';
 
 describe('formatMoney', () => {
   // O pt-BR separa o símbolo com espaço não-quebrável, o que também garante
@@ -43,5 +43,20 @@ describe('parseAmountToCents', () => {
 
   it('devolve sempre positivo: o sinal é do flow', () => {
     expect(parseAmountToCents('-30')).toBe(3000);
+  });
+});
+
+describe('balanceOf', () => {
+  it('resultado positivo é sobra', () => {
+    expect(balanceOf(334_001)).toEqual({ label: 'SOBRA', amount: 334_001 });
+  });
+
+  it('resultado negativo vira falta e perde o sinal', () => {
+    expect(balanceOf(-169_489)).toEqual({ label: 'FALTA', amount: 169_489 });
+    expect(formatMoney(balanceOf(-169_489).amount)).toBe('$\u00a01.694,89');
+  });
+
+  it('zero é sobra, não falta', () => {
+    expect(balanceOf(0)).toEqual({ label: 'SOBRA', amount: 0 });
   });
 });

@@ -5,7 +5,7 @@ import { todayISO } from '../core/dates';
 import { formatDayMonthYear } from '../core/week';
 import { parseAmountToCents } from '../core/money';
 import { addEntry } from '../db/entries';
-import { BUTTON_ACCENT, BUTTON_DISABLED, CONTROL, Field } from './Controls';
+import { AmountInput, BUTTON_ACCENT, BUTTON_DISABLED, CONTROL, Disclosure, Field } from './Controls';
 
 /**
  * Gasto avulso (seção 7.5): modal que sobe de baixo em 200ms. Três campos
@@ -51,14 +51,7 @@ export function EntrySheet({ locale = 'pt-BR', onClose }: { locale?: Locale; onC
         <h2 className="type-display text-base font-semibold">Gasto avulso</h2>
 
         <Field label="VALOR">
-          <input
-            autoFocus
-            className={`${CONTROL} type-num`}
-            inputMode="decimal"
-            value={amount}
-            onChange={(event) => setAmount(event.target.value)}
-            placeholder="0,00"
-          />
+          <AmountInput autoFocus label="Valor" locale={locale} value={amount} onChange={setAmount} />
         </Field>
 
         <Field label="NOME">
@@ -84,18 +77,15 @@ export function EntrySheet({ locale = 'pt-BR', onClose }: { locale?: Locale; onC
           </select>
         </Field>
 
-        <details className="mt-3">
-          <summary className="type-display flex h-11 cursor-pointer items-center text-xs text-steel">
-            DATA · {formatDayMonthYear(date, locale, today)}
-          </summary>
+        <Disclosure label={`DATA · ${formatDayMonthYear(date, locale, today)}`}>
           <input
-            className={`${CONTROL} type-num`}
+            className={`${CONTROL} type-num mt-2`}
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
             aria-label="Data do gasto"
           />
-        </details>
+        </Disclosure>
 
         <button
           type="button"

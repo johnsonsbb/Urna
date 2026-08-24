@@ -6,7 +6,16 @@ import { nextOccurrences } from '../core/recurrence';
 import type { Flow, Frequency, Locale, Recurring } from '../core/types';
 import { formatDayMonthYear } from '../core/week';
 import { saveRecurring } from '../db/recurrings';
-import { BUTTON, BUTTON_DISABLED, BUTTON_PRIMARY, CONTROL, Field, Segmented } from './Controls';
+import {
+  AmountInput,
+  BUTTON,
+  BUTTON_DISABLED,
+  BUTTON_PRIMARY,
+  CONTROL,
+  Disclosure,
+  Field,
+  Segmented,
+} from './Controls';
 
 /**
  * Formulário de recorrente (seção 7.4). Campos na ordem do documento, com o
@@ -151,12 +160,11 @@ export function RecurringForm({ existing, locale, onDone }: Props) {
       </div>
 
       <Field label="VALOR">
-        <input
-          className={`${CONTROL} type-num`}
-          inputMode="decimal"
+        <AmountInput
+          label="Valor"
+          locale={locale}
           value={form.amount}
-          onChange={(event) => set('amount', event.target.value)}
-          placeholder="0,00"
+          onChange={(value) => set('amount', value)}
         />
       </Field>
 
@@ -265,10 +273,7 @@ export function RecurringForm({ existing, locale, onDone }: Props) {
         </p>
       )}
 
-      <details className="mt-6 border-t border-hairline pt-3">
-        <summary className="type-display flex h-11 cursor-pointer items-center text-xs text-steel">
-          MAIS OPÇÕES
-        </summary>
+      <Disclosure label="MAIS OPÇÕES">
 
         <Field label="DATA DE INÍCIO">
           <input
@@ -295,7 +300,7 @@ export function RecurringForm({ existing, locale, onDone }: Props) {
             onChange={(event) => set('notes', event.target.value)}
           />
         </Field>
-      </details>
+      </Disclosure>
 
       <p className="mt-6 border-t border-hairline pt-3 text-sm text-steel">
         {preview.length > 0

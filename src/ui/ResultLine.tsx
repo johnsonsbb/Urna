@@ -1,5 +1,5 @@
 import type { Totals } from '../core/day';
-import { formatMoney } from '../core/money';
+import { balanceOf, formatMoney } from '../core/money';
 import type { Locale } from '../core/types';
 
 /**
@@ -10,6 +10,8 @@ import type { Locale } from '../core/types';
  * o número de 44px não caberia. Separação por hairline, como manda a 8.4.
  */
 export function ResultLine({ totals, locale }: { totals: Totals; locale: Locale }) {
+  const balance = balanceOf(totals.left);
+
   return (
     <section className="mt-3 border-y border-hairline py-3" aria-label="Resultado da semana">
       <div className="flex items-baseline justify-between gap-4">
@@ -24,9 +26,9 @@ export function ResultLine({ totals, locale }: { totals: Totals; locale: Locale 
       </div>
 
       <div className="mt-3">
-        <p className="type-display text-xs text-steel">SOBRA</p>
+        <p className="type-display text-xs text-steel">{balance.label}</p>
         <p className="type-num whitespace-nowrap text-hero font-semibold">
-          {formatMoney(totals.left, locale)}
+          {formatMoney(balance.amount, locale)}
         </p>
       </div>
     </section>

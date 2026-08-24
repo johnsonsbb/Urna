@@ -63,3 +63,15 @@ export function centsToInput(amountInCents: number, locale: Locale = 'pt-BR'): s
   const text = (amountInCents / 100).toFixed(2);
   return locale === 'pt-BR' ? text.replace('.', ',') : text;
 }
+
+/**
+ * Rótulo e valor do resultado de um período (seção 7.1). Resultado negativo
+ * vira FALTA e o número perde o sinal: a informação mais importante da tela
+ * não pode depender de um traço fino na frente do valor. Mesma cor, mesma
+ * fonte, mesmo tamanho — é legibilidade, não alarme.
+ */
+export function balanceOf(amountInCents: number): { label: 'SOBRA' | 'FALTA'; amount: number } {
+  return amountInCents < 0
+    ? { label: 'FALTA', amount: -amountInCents }
+    : { label: 'SOBRA', amount: amountInCents };
+}
