@@ -1,0 +1,1530 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0d0b12">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkhlcsOzaSBkZSBNYXNtb3JyYSI+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMwZDBiMTIiLz4KICA8cmVjdCB4PSI1NiIgeT0iOTYiIHdpZHRoPSI0MDAiIGhlaWdodD0iMzIwIiBmaWxsPSIjMTcxMzIwIiBzdHJva2U9IiMzYjJmNTIiIHN0cm9rZS13aWR0aD0iMTAiLz4KICA8ZyBzdHJva2U9IiMyMjFjMmUiIHN0cm9rZS13aWR0aD0iNiI+CiAgICA8cGF0aCBkPSJNMTU2IDk2djMyME0yNTYgOTZ2MzIwTTM1NiA5NnYzMjBNNTYgMTk2aDQwME01NiAyOTZoNDAwIi8+CiAgPC9nPgogIDxyZWN0IHg9IjIxNiIgeT0iMjE2IiB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiNlMGIxNTUiLz4KICA8cmVjdCB4PSIyMTYiIHk9IjI3MiIgd2lkdGg9IjgwIiBoZWlnaHQ9IjE2IiBmaWxsPSIjOGE2YTJjIi8+CiAgPHJlY3QgeD0iMTA0IiB5PSIxNDAiIHdpZHRoPSI1NiIgaGVpZ2h0PSI1NiIgZmlsbD0iIzdmZDRmZiIvPgogIDxjaXJjbGUgY3g9IjM3MiIgY3k9IjE2OCIgcj0iMjgiIGZpbGw9IiNjODUwNmEiLz4KICA8Y2lyY2xlIGN4PSIxNDgiIGN5PSIzNDQiIHI9IjI4IiBmaWxsPSIjYzg1MDZhIi8+CiAgPGNpcmNsZSBjeD0iMzYwIiBjeT0iMzQ4IiByPSIyOCIgZmlsbD0iI2U4ODk0ZiIvPgo8L3N2Zz4K">
+<title>Herói de Masmorra</title>
+<style>
+/* Portrait fixo. Campo em cima, painel embaixo, tudo alcançável com o polegar.
+   Área de toque mínima de 44px em qualquer coisa clicável. */
+
+:root {
+  --fundo: #0d0b12;
+  --piso: #171320;
+  --linha: #262032;
+  --texto: #e8e3f0;
+  --fraco: #9a92ab;
+  --ouro: #e0b155;
+  --heroi: #7fd4ff;
+  --perigo: #c8506a;
+  --essencia: #b58cff;
+  --toque: 44px;
+}
+
+* { box-sizing: border-box; }
+
+/* display: flex numa classe vence o [hidden] do navegador. Sem isto o botão de
+   prestígio aparece antes da hora. */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overscroll-behavior: none;   /* sem bounce de scroll: isto é um app, não um site */
+}
+
+body {
+  background: var(--fundo);
+  color: var(--texto);
+  font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;   /* sem flash cinza ao tocar */
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;                  /* sem zoom por duplo toque */
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* ------------------------------------------------------------------- topo */
+
+#topo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--linha);
+  border-bottom: 1px solid var(--linha);
+  flex: 0 0 auto;
+}
+
+.marcador {
+  background: var(--fundo);
+  padding: 8px 10px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.marcador .rot { font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--fraco); }
+.marcador strong,
+.marcador .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.marcador strong { font-size: 21px; font-weight: 650; }
+.marcador .sub { font-size: 11px; color: var(--fraco); }
+.marcador:nth-child(1) strong { color: var(--ouro); }
+.marcador:nth-child(3) strong { color: var(--essencia); }
+
+/* ------------------------------------------------------------------ campo */
+
+#campo {
+  display: block;
+  width: 100%;
+  flex: 1 1 42%;
+  min-height: 180px;
+  background: var(--fundo);
+}
+
+.gargalo {
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  text-align: center;
+  border-top: 1px solid var(--linha);
+  border-bottom: 1px solid var(--linha);
+  flex: 0 0 auto;
+}
+.gargalo.spawn  { color: var(--perigo); background: rgba(200, 80, 106, .09); }
+.gargalo.herois { color: var(--heroi);  background: rgba(127, 212, 255, .07); }
+
+/* ----------------------------------------------------------------- painel */
+
+#painel {
+  flex: 1 1 58%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+}
+
+#acoes { display: flex; gap: 8px; margin-bottom: 10px; }
+
+.acao {
+  flex: 1;
+  min-height: var(--toque);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 10px;
+  border: 1px solid var(--ouro);
+  border-radius: 10px;
+  background: rgba(224, 177, 85, .1);
+  color: var(--ouro);
+  font: inherit;
+  cursor: pointer;
+}
+.acao .rot { font-size: 13px; font-weight: 600; }
+.acao .val { font-size: 12px; opacity: .82; font-variant-numeric: tabular-nums; }
+.acao:disabled { opacity: .34; cursor: default; }
+.acao.prest { border-color: var(--essencia); background: rgba(181, 140, 255, .1); color: var(--essencia); }
+.acao:not(:disabled):active { transform: translateY(1px); }
+
+/* Seletor de quantidade: tocar cinquenta vezes no celular é sofrimento. */
+#lotes { display: flex; gap: 6px; margin-bottom: 10px; }
+#lotes button {
+  flex: 1;
+  min-height: 38px;
+  border: 1px solid var(--linha);
+  border-radius: 9px;
+  background: var(--piso);
+  color: var(--fraco);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+#lotes button.ativo { border-color: var(--heroi); color: var(--heroi); background: rgba(127, 212, 255, .1); }
+
+/* ------------------------------------------------------------------ eixos */
+
+#lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.eixo {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 8px 9px;
+  background: var(--piso);
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+}
+.eixo.maximo { opacity: .55; }
+
+.eixo-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; justify-content: center; }
+.eixo-topo { display: flex; align-items: baseline; gap: 7px; }
+.eixo-nome { font-size: 14px; font-weight: 620; }
+.eixo-nivel { font-size: 11px; color: var(--fraco); font-variant-numeric: tabular-nums; }
+.eixo-nota { font-size: 11.5px; color: var(--fraco); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eixo-efeito { font-size: 12px; color: var(--fraco); font-variant-numeric: tabular-nums; }
+.eixo-efeito b { color: var(--heroi); font-weight: 600; }
+.eixo-efeito .seta { opacity: .5; }
+
+.comprar {
+  flex: 0 0 88px;
+  min-height: var(--toque);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border: 1px solid var(--linha);
+  border-radius: 9px;
+  background: rgba(224, 177, 85, .12);
+  color: var(--ouro);
+  font: inherit;
+  cursor: pointer;
+}
+.comprar-qtd { font-size: 11px; opacity: .75; }
+.comprar-custo { font-size: 14px; font-weight: 640; font-variant-numeric: tabular-nums; }
+.comprar:disabled { opacity: .3; cursor: default; background: transparent; }
+.comprar:not(:disabled):active { transform: translateY(1px); }
+
+#rodape { margin-top: 14px; text-align: center; }
+#rodape button {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--linha);
+  border-radius: 9px;
+  background: none;
+  color: var(--fraco);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* -------------------------------------------------------------- relatório */
+
+#relatorio {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(6, 5, 9, .84);
+  z-index: 10;
+}
+#relatorio[hidden] { display: none; }
+
+.cartao {
+  width: 100%;
+  max-width: 340px;
+  padding: 22px 20px 18px;
+  background: var(--piso);
+  border: 1px solid var(--linha);
+  border-radius: 14px;
+  text-align: center;
+}
+.cartao h2 { margin: 0 0 12px; font-size: 18px; }
+.cartao .linha { margin: 0 0 4px; font-size: 14px; color: var(--fraco); }
+.cartao .ouro-off { margin: 8px 0 6px; font-size: 30px; font-weight: 680; color: var(--ouro); font-variant-numeric: tabular-nums; }
+.cartao .nota { margin: 0 0 4px; font-size: 11.5px; color: var(--fraco); }
+.cartao .teto { color: var(--perigo); }
+.cartao button {
+  margin-top: 16px;
+  width: 100%;
+  min-height: var(--toque);
+  border: 1px solid var(--ouro);
+  border-radius: 10px;
+  background: rgba(224, 177, 85, .12);
+  color: var(--ouro);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Paisagem no celular: o campo encolhe para o painel continuar alcançável. */
+@media (orientation: landscape) and (max-height: 520px) {
+  #campo { flex: 0 0 38%; min-height: 120px; }
+}
+
+</style>
+</head>
+<body>
+<main id="app">
+
+  <section id="topo">
+    <div class="marcador">
+      <span class="rot">Ouro</span>
+      <strong id="ouro">0</strong>
+      <span class="sub" id="taxa">0/s</span>
+    </div>
+    <div class="marcador">
+      <span class="rot">Andar</span>
+      <strong id="andar">1</strong>
+      <span class="sub">masmorra</span>
+    </div>
+    <div class="marcador">
+      <span class="rot">Essência</span>
+      <strong id="essencia">—</strong>
+      <span class="sub" id="multiplicador">permanente</span>
+    </div>
+  </section>
+
+  <canvas id="campo" aria-label="A sala da masmorra: o herói caça sozinho"></canvas>
+
+  <p id="gargalo" class="gargalo herois"></p>
+
+  <section id="painel">
+
+    <div id="acoes">
+      <button id="descer" class="acao" type="button">
+        <span class="rot">Descer ao andar 2</span>
+        <span class="val">300</span>
+      </button>
+      <button id="prestigio" class="acao prest" type="button" hidden>
+        <span class="rot">Prestígio</span>
+        <span class="val">+0</span>
+      </button>
+    </div>
+
+    <div id="lotes" role="group" aria-label="Quantidade por compra">
+      <button data-lote="1" class="ativo" type="button">1</button>
+      <button data-lote="10" type="button">10</button>
+      <button data-lote="max" type="button">Máx</button>
+    </div>
+
+    <ul id="lista"></ul>
+
+    <footer id="rodape">
+      <button id="apagar" type="button">Apagar o save</button>
+    </footer>
+
+  </section>
+
+</main>
+
+<div id="relatorio" hidden>
+  <div class="cartao">
+    <h2>O herói não parou</h2>
+    <p class="linha">Você esteve fora por <b id="rel-tempo">—</b>.</p>
+    <p class="ouro-off"><b id="rel-ouro">0</b> de ouro</p>
+    <p class="nota" id="rel-taxa">—</p>
+    <p class="nota teto" id="rel-teto" hidden>O acúmulo tem teto de 4 horas — o que passou disso não contou.</p>
+    <button id="rel-ok" type="button">Continuar a descida</button>
+  </div>
+</div>
+
+<script type="text/plain" data-modulo="balance.js">
+// balance.js — constantes e fórmulas.
+//
+// REGRA: este arquivo não pode referenciar document, window, canvas ou
+// localStorage. Ele roda no navegador e vai rodar no servidor, com a mesma
+// resposta. Só entra e sai dado puro. Ver tools/purity.test.mjs.
+
+// ---------------------------------------------------------------- simulação
+
+export const TICK = 0.05;          // passo fixo, em segundos
+export const DEPOSIT_TIME = 0.5;   // tempo parado no baú
+export const SPAWN_MARGIN = 10;    // borda onde inimigo não nasce
+export const CHEST_CLEAR = 26;     // raio livre em volta do baú
+
+// ------------------------------------------------------------------- sala
+
+export const baseRoom = () => roomSize(0);
+export const baseArea = () => { const r = baseRoom(); return r.w * r.h; };
+
+
+// ------------------------------------------------------------------ tunables
+//
+// Todo número que o balanceamento pode querer mexer mora aqui, num objeto só,
+// para o simulador da fase 1 conseguir varrer variantes sem editar código.
+// O jogo nunca escreve neste objeto — só as ferramentas de tools/.
+
+export const TUNING = {
+  // efeitos
+  speedBase: 85, speedStep: 1.045,
+  damageBase: 10, damageStep: 1.07,
+  reachBase: 14, reachStep: 3,
+  backpackBase: 5, backpackStep: 3,
+  spawnBase: 1.1, spawnStep: 0.95, spawnFloorSec: 0.02,
+  roomW: 300, roomH: 220, roomStepW: 40, roomStepH: 30,
+  tacticFactor: [0.52, 0.40, 0.36, 0.30, 0.26],
+
+  // custos: base e fator por eixo
+  cost: {
+    botas:       { base: 5,   factor: 1.10, cap: Infinity },
+    lamina:      { base: 6,   factor: 1.10, cap: Infinity },
+    alcance:     { base: 14,  factor: 1.10, cap: Infinity },
+    mochila:     { base: 10,  factor: 1.10, cap: Infinity },
+    isca:        { base: 20,  factor: 1.10, cap: Infinity },
+    tocha:       { base: 200, factor: 1.30, cap: 100 },
+    companheiro: { base: 700, factor: 2.60, cap: 8 },
+    tatica:      { base: 400, factor: 20,   cap: 4 },
+  },
+
+  // andares
+  valueStep: 4, hpBase: 10, hpStep: 3.5, descendBase: 300, descendStep: 8,
+
+  // prestígio
+  prestigeFloor: 5, essenceBase: 5, essenceStep: 1.55,
+  essencePerPoint: 0.08, prestigeRatio: 1.5, prestigeMin: 5,
+
+  // campo
+  enemyCapBase: 30,
+};
+
+// ------------------------------------------------------------- os oito eixos
+
+export const UPGRADE_IDS = [
+  'botas', 'lamina', 'alcance', 'mochila', 'isca', 'tocha', 'companheiro', 'tatica',
+];
+
+export const UPGRADES = UPGRADE_IDS.map((id) => ({ id, get cost() { return TUNING.cost[id]; } }));
+
+export const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map((u) => [u.id, u]));
+
+export const upgradeCap = (id) => TUNING.cost[id].cap;
+
+export function emptyUpgrades() {
+  const o = {};
+  for (const id of UPGRADE_IDS) o[id] = 0;
+  return o;
+}
+
+// ------------------------------------------------------------------- custos
+
+export function upgradeCost(id, level) {
+  const c = TUNING.cost[id];
+  return Math.ceil(c.base * Math.pow(c.factor, level));
+}
+
+// Custo de comprar `count` níveis a partir de `level`. A soma é feita nível a
+// nível porque cada custo é arredondado para cima antes de somar.
+export function bulkCost(id, level, count) {
+  let total = 0;
+  for (let i = 0; i < count; i++) total += upgradeCost(id, level + i);
+  return total;
+}
+
+// Quantos níveis cabem em `gold`, respeitando o teto do upgrade.
+export function maxAffordable(id, level, gold) {
+  const cap = TUNING.cost[id].cap;
+  let count = 0;
+  let cost = 0;
+  while (level + count < cap && count < 10000) {
+    const next = upgradeCost(id, level + count);
+    if (cost + next > gold) break;
+    cost += next;
+    count++;
+  }
+  return { count, cost };
+}
+
+// ------------------------------------------------------------------ efeitos
+//
+// Armadilha 1: nenhum ganho multiplicativo pode chegar perto do fator de custo
+// (1,10), senão o retorno por nível fica constante e a taxa explode.
+
+export const moveSpeed = (lv) => TUNING.speedBase * Math.pow(TUNING.speedStep, lv);
+export const damage = (lv) => TUNING.damageBase * Math.pow(TUNING.damageStep, lv);
+export const reach = (lv) => TUNING.reachBase + TUNING.reachStep * lv;
+export const backpack = (lv) => TUNING.backpackBase + TUNING.backpackStep * lv;
+export const heroCount = (lv) => 1 + lv;
+
+export const spawnInterval = (lv) =>
+  Math.max(TUNING.spawnFloorSec, TUNING.spawnBase * Math.pow(TUNING.spawnStep, lv));
+
+export const roomSize = (lv) => ({
+  w: TUNING.roomW + TUNING.roomStepW * lv,
+  h: TUNING.roomH + TUNING.roomStepH * lv,
+});
+
+export const tacticFactor = (lv) =>
+  TUNING.tacticFactor[Math.min(lv, TUNING.tacticFactor.length - 1)];
+
+export function roomArea(tochaLv) {
+  const r = roomSize(tochaLv);
+  return r.w * r.h;
+}
+
+// Sala maior comporta mais inimigos ao mesmo tempo: a oferta cresce com a raiz
+// da área, não com a área, senão a Tocha viraria o único upgrade que importa.
+export const spawnDensity = (tochaLv) => Math.sqrt(roomArea(tochaLv) / baseArea());
+
+export const effectiveSpawnInterval = (u) => spawnInterval(u.isca) / spawnDensity(u.tocha);
+
+// Teto de inimigos vivos. Existe para o campo não crescer sem limite quando a
+// produção passa o consumo — com o teto batido, a taxa cai para o consumo, que
+// é exatamente o que o min() da fórmula já diz.
+export const enemyCap = (tochaLv) => Math.round(TUNING.enemyCapBase * spawnDensity(tochaLv));
+
+// ------------------------------------------------------------------- andares
+//
+// Valor cresce mais rápido que vida de propósito: andar novo é salto, não
+// parede. O custo para descer cresce mais rápido que o valor, e é isso que
+// trava a progressão e dá razão para o prestígio existir.
+
+export const enemyValue = (floor) => Math.pow(TUNING.valueStep, floor - 1);
+export const enemyHp = (floor) => TUNING.hpBase * Math.pow(TUNING.hpStep, floor - 1);
+export const descendCost = (floor) => TUNING.descendBase * Math.pow(TUNING.descendStep, floor - 1);
+
+// ----------------------------------------------------------------- prestígio
+//
+// Armadilha 2: a essência é calculada pelo andar alcançado, nunca pelo ouro.
+// Ela multiplica o ouro; premiar ouro criaria realimentação sem limite.
+
+export function essenceGain(floor) {
+  if (floor < TUNING.prestigeFloor) return 0;
+  return Math.floor(TUNING.essenceBase * Math.pow(TUNING.essenceStep, floor - TUNING.prestigeFloor));
+}
+
+export const essenceMultiplier = (essence) => 1 + essence * TUNING.essencePerPoint;
+
+export function canPrestige(floor, essence) {
+  const gain = essenceGain(floor);
+  return gain >= TUNING.prestigeMin && gain >= TUNING.prestigeRatio * essence;
+}
+
+// -------------------------------------------------------------- ouro/segundo
+//
+// Estimativa analítica do ciclo do herói. É o que alimenta o ganho offline e,
+// na fase online, a validação no servidor. Não é a simulação — é o modelo dela.
+
+export function goldPerSecond({ upgrades, floor, essence }) {
+  const room = roomSize(upgrades.tocha);
+  const mid = (room.w + room.h) / 2;
+
+  const vel = moveSpeed(upgrades.botas);
+  const dps = damage(upgrades.lamina);
+  const cap = backpack(upgrades.mochila);
+  const heroes = heroCount(upgrades.companheiro);
+
+  const distTarget = Math.max(0, tacticFactor(upgrades.tatica) * mid - reach(upgrades.alcance));
+  const distChest = 0.5 * mid;
+
+  const timePerEnemy = distTarget / vel + enemyHp(floor) / dps;
+  const cycleTime = cap * timePerEnemy + distChest / vel + DEPOSIT_TIME;
+
+  const consumption = (heroes * cap) / cycleTime;              // inimigos/s
+  const production = spawnDensity(upgrades.tocha) / spawnInterval(upgrades.isca);
+
+  // O min() é o gargalo: se o consumo passa a produção, o campo fica vazio e
+  // os heróis esperam. É aí que Isca e Tocha viram compras necessárias.
+  return Math.min(consumption, production) * enemyValue(floor) * essenceMultiplier(essence);
+}
+
+// Qual dos dois lados está segurando a taxa. A interface mostra isso, porque é
+// a informação que faz o jogador entender o que comprar.
+export function bottleneck({ upgrades, floor }) {
+  const room = roomSize(upgrades.tocha);
+  const mid = (room.w + room.h) / 2;
+  const distTarget = Math.max(0, tacticFactor(upgrades.tatica) * mid - reach(upgrades.alcance));
+  const timePerEnemy = distTarget / moveSpeed(upgrades.botas) + enemyHp(floor) / damage(upgrades.lamina);
+  const cap = backpack(upgrades.mochila);
+  const cycleTime = cap * timePerEnemy + (0.5 * mid) / moveSpeed(upgrades.botas) + DEPOSIT_TIME;
+  const consumption = (heroCount(upgrades.companheiro) * cap) / cycleTime;
+  const production = spawnDensity(upgrades.tocha) / spawnInterval(upgrades.isca);
+  return { consumption, production, limitedBy: consumption <= production ? 'herois' : 'spawn' };
+}
+
+// -------------------------------------------------------------- ganho offline
+
+export const OFFLINE_CAP = 4 * 3600;
+export const OFFLINE_RATE = 0.5;
+
+// A taxa usada é a congelada no fechamento, não a recalculada agora. É isso que
+// impede comprar tudo, fechar e reabrir para colher a taxa nova.
+export function offlineGain(goldPerSec, seconds) {
+  const capped = Math.min(Math.max(0, seconds), OFFLINE_CAP);
+  return { seconds: capped, gold: goldPerSec * capped * OFFLINE_RATE };
+}
+
+</script>
+<script type="text/plain" data-modulo="game.js">
+// game.js — estado do mundo e o tick que o avança.
+//
+// REGRA: este arquivo não pode referenciar document, window, canvas ou
+// localStorage. Recebe e devolve dados puros, e o estado é serializável em
+// JSON sem perda. É essa lógica que vai rodar no servidor na fase 5.
+
+import * as B from './balance.js';
+
+// --------------------------------------------------------------------- rng
+//
+// Determinístico e serializável: a semente vive no estado. Mesma semente,
+// mesma partida — o que a fase 5 vai precisar para verificar progresso.
+
+function rand(s) {
+  let a = (s.seed = (s.seed + 0x6d2b79f5) | 0);
+  let t = Math.imul(a ^ (a >>> 15), 1 | a);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+// ------------------------------------------------------------------- estado
+
+export const SAVE_VERSION = 1;
+
+export function createState(seed = (Date.now() & 0x7fffffff) || 1) {
+  const s = {
+    version: SAVE_VERSION,
+    seed: seed | 0,
+    floor: 1,
+    gold: 0,
+    essence: 0,
+    upgrades: B.emptyUpgrades(),
+    heroes: [],
+    enemies: [],
+    nextId: 1,
+    spawnT: 0,
+    stats: { kills: 0, deposits: 0, goldEver: 0, prestiges: 0, bestFloor: 1, playTime: 0, runTime: 0 },
+  };
+  syncHeroes(s);
+  return s;
+}
+
+export const room = (s) => B.roomSize(s.upgrades.tocha);
+
+export function chest(s) {
+  const r = room(s);
+  return { x: r.w / 2, y: r.h / 2 };
+}
+
+export const rate = (s) =>
+  B.goldPerSecond({ upgrades: s.upgrades, floor: s.floor, essence: s.essence });
+
+export const multiplier = (s) => B.essenceMultiplier(s.essence);
+
+function newHero(s) {
+  const c = chest(s);
+  return { x: c.x, y: c.y, st: 'seek', tid: 0, carry: 0, loot: 0, dep: 0 };
+}
+
+// Mantém o número de heróis igual ao nível de Companheiro. Herói novo entra
+// no baú, de mãos vazias.
+export function syncHeroes(s) {
+  const want = B.heroCount(s.upgrades.companheiro);
+  while (s.heroes.length < want) s.heroes.push(newHero(s));
+  if (s.heroes.length > want) {
+    for (const h of s.heroes.splice(want)) s.gold += h.loot;  // ninguém perde o que carregava
+  }
+}
+
+// --------------------------------------------------------------------- alvo
+
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+
+function nearestTo(pool, p) {
+  let best = null;
+  let bd = Infinity;
+  for (const e of pool) {
+    const d = dist(e, p);
+    if (d < bd) { bd = d; best = e; }
+  }
+  return best;
+}
+
+function releaseClaims(s, i) {
+  for (const e of s.enemies) if (e.claim === i) e.claim = -1;
+}
+
+// A Tática é o único upgrade que muda comportamento em vez de número. Os
+// níveis são cumulativos: o 4 continua fazendo o que o 3 faz.
+export function pickTarget(s, i) {
+  const h = s.heroes[i];
+  const lv = s.upgrades.tatica;
+  // Os mortos deste tick só saem de s.enemies no fim dele, então filtrar aqui
+  // é o que impede um herói de sair andando atrás de um alvo que já caiu.
+  const alive = s.enemies.filter((e) => e.hp > 0);
+  if (!alive.length) return null;
+
+  // Nível 0: alvo aleatório, sem reserva — é o caos que os outros níveis curam.
+  if (lv === 0) return alive[Math.floor(rand(s) * alive.length)];
+
+  let pool = alive.filter((e) => e.claim === -1 || e.claim === i);
+  if (!pool.length) return null;
+
+  const c = chest(s);
+
+  // Nível 2: descarta quem está longe demais do baú.
+  if (lv >= 2) {
+    const r = room(s);
+    const limit = 0.6 * Math.hypot(r.w, r.h);
+    const near = pool.filter((e) => dist(e, c) <= limit);
+    if (near.length) pool = near;
+  }
+
+  // Nível 4: uma faixa vertical por herói, sem sobreposição. Se a faixa do
+  // herói está vazia ele volta ao critério geral, senão ficaria parado olhando
+  // para o próprio corredor — o que seria pior que o nível 3.
+  if (lv >= 4) {
+    const r = room(s);
+    const lane = r.w / s.heroes.length;
+    const mine = pool.filter((e) => e.x >= lane * i && e.x < lane * (i + 1));
+    if (mine.length) pool = mine;
+  }
+
+  // Nível 3: com a mochila quase cheia, prefere quem está perto do baú.
+  if (lv >= 3 && h.carry >= 0.7 * B.backpack(s.upgrades.mochila)) return nearestTo(pool, c);
+
+  return nearestTo(pool, h);
+}
+
+// -------------------------------------------------------------------- spawn
+
+function spawnOne(s) {
+  const r = room(s);
+  const c = chest(s);
+  const m = B.SPAWN_MARGIN;
+  let x = 0;
+  let y = 0;
+  for (let k = 0; k < 8; k++) {
+    x = m + rand(s) * (r.w - 2 * m);
+    y = m + rand(s) * (r.h - 2 * m);
+    if (Math.hypot(x - c.x, y - c.y) > B.CHEST_CLEAR) break;
+  }
+  const hp = B.enemyHp(s.floor);
+  s.enemies.push({ id: s.nextId++, x, y, hp, max: hp, claim: -1 });
+}
+
+function spawnStep(s, dt) {
+  const cap = B.enemyCap(s.upgrades.tocha);
+  const iv = Math.max(0.01, B.effectiveSpawnInterval(s.upgrades));
+  s.spawnT -= dt;
+  let guard = 0;
+  while (s.spawnT <= 0 && guard++ < 500) {
+    if (s.enemies.length >= cap) { s.spawnT = iv; break; }
+    spawnOne(s);
+    s.spawnT += iv;
+  }
+  if (s.spawnT < 0) s.spawnT = 0;
+}
+
+// --------------------------------------------------------------------- tick
+
+function stepHero(s, i, dt, k) {
+  const h = s.heroes[i];
+
+  if (h.st === 'seek') {
+    const t = pickTarget(s, i);
+    if (!t) return;
+    releaseClaims(s, i);
+    if (s.upgrades.tatica > 0) t.claim = i;
+    h.tid = t.id;
+    h.st = 'move';
+  }
+
+  if (h.st === 'move' || h.st === 'attack') {
+    const e = k.byId.get(h.tid);
+    if (!e) { h.tid = 0; h.st = 'seek'; return; }
+
+    const d = dist(h, e);
+    if (d > k.reach) {
+      const step = Math.min(k.speed * dt, d);
+      h.x += ((e.x - h.x) / d) * step;
+      h.y += ((e.y - h.y) / d) * step;
+      h.st = dist(h, e) <= k.reach ? 'attack' : 'move';
+      return;
+    }
+
+    h.st = 'attack';
+    e.hp -= k.dps * dt;
+    if (e.hp <= 0) {
+      k.dead.add(e.id);
+      k.byId.delete(e.id);
+      s.stats.kills++;
+      h.carry++;
+      h.loot += k.value;
+      h.tid = 0;
+      // Mochila cheia ao matar: volta na hora, sem procurar mais um.
+      h.st = h.carry >= k.cap ? 'return' : 'seek';
+    }
+    return;
+  }
+
+  if (h.st === 'return') {
+    const d = dist(h, k.chest);
+    if (d > k.reach) {
+      const step = Math.min(k.speed * dt, d);
+      h.x += ((k.chest.x - h.x) / d) * step;
+      h.y += ((k.chest.y - h.y) / d) * step;
+      return;
+    }
+    h.st = 'deposit';
+    h.dep = B.DEPOSIT_TIME;
+    return;
+  }
+
+  if (h.st === 'deposit') {
+    h.dep -= dt;
+    if (h.dep > 0) return;
+    s.gold += h.loot;
+    s.stats.goldEver += h.loot;
+    s.stats.deposits++;
+    h.loot = 0;
+    h.carry = 0;
+    h.st = 'seek';
+  }
+}
+
+export function tick(s, dt = B.TICK) {
+  s.stats.playTime += dt;
+  s.stats.runTime += dt;
+
+  spawnStep(s, dt);
+
+  const u = s.upgrades;
+  const byId = new Map();
+  for (const e of s.enemies) byId.set(e.id, e);
+
+  const k = {
+    speed: B.moveSpeed(u.botas),
+    dps: B.damage(u.lamina),
+    reach: B.reach(u.alcance),
+    cap: B.backpack(u.mochila),
+    value: B.enemyValue(s.floor) * multiplier(s),
+    chest: chest(s),
+    byId,
+    dead: new Set(),
+  };
+
+  for (let i = 0; i < s.heroes.length; i++) stepHero(s, i, dt, k);
+
+  if (k.dead.size) s.enemies = s.enemies.filter((e) => !k.dead.has(e.id));
+}
+
+// ------------------------------------------------------------------ compras
+
+export function buyUpgrade(s, id, count = 1) {
+  if (!B.UPGRADE_IDS.includes(id)) return 0;
+  const lv = s.upgrades[id];
+  const cap = B.upgradeCap(id);
+
+  const n = count === 'max'
+    ? B.maxAffordable(id, lv, s.gold).count
+    : Math.min(count, cap - lv);
+  if (n <= 0) return 0;
+
+  const cost = B.bulkCost(id, lv, n);
+  if (cost > s.gold) return 0;
+
+  s.gold -= cost;
+  s.upgrades[id] += n;
+  if (id === 'companheiro') syncHeroes(s);
+  return n;
+}
+
+export function buyPreview(s, id, count = 1) {
+  const lv = s.upgrades[id];
+  const cap = B.upgradeCap(id);
+  if (lv >= cap) return { count: 0, cost: 0, maxed: true };
+  const n = count === 'max'
+    ? B.maxAffordable(id, lv, s.gold).count
+    : Math.min(count, cap - lv);
+  const cost = B.bulkCost(id, lv, Math.max(n, count === 'max' ? 0 : n));
+  return { count: n, cost, maxed: false, affordable: n > 0 && cost <= s.gold };
+}
+
+// ------------------------------------------------------------------- andares
+
+export function descend(s) {
+  const cost = B.descendCost(s.floor);
+  if (s.gold < cost) return false;
+
+  s.gold -= cost;
+  s.floor++;
+  if (s.floor > s.stats.bestFloor) s.stats.bestFloor = s.floor;
+
+  // Andar novo, sala limpa. O que estava na mochila é creditado: ninguém deve
+  // ser punido por descer no momento errado.
+  s.enemies = [];
+  s.spawnT = 0;
+  for (const h of s.heroes) {
+    s.gold += h.loot;
+    Object.assign(h, newHero(s), { st: 'seek' });
+  }
+  return true;
+}
+
+// ----------------------------------------------------------------- prestígio
+
+export function canPrestige(s) {
+  return B.canPrestige(s.floor, s.essence);
+}
+
+export function prestigeGain(s) {
+  return B.essenceGain(s.floor);
+}
+
+// Reseta ouro, upgrades e andar. Mantém essência, multiplicador e o nível de
+// Tática — tática é conhecimento, e o jogador não deve perder um comportamento
+// que já entendeu.
+export function prestige(s) {
+  if (!canPrestige(s)) return 0;
+
+  const gain = prestigeGain(s);
+  const keep = { essence: s.essence + gain, tatica: s.upgrades.tatica, stats: s.stats, seed: s.seed };
+
+  const fresh = createState(keep.seed);
+  fresh.essence = keep.essence;
+  fresh.upgrades.tatica = keep.tatica;
+  fresh.stats = keep.stats;
+  fresh.stats.prestiges++;
+  fresh.stats.runTime = 0;
+  syncHeroes(fresh);
+
+  for (const k of Object.keys(s)) delete s[k];
+  Object.assign(s, fresh);
+  return gain;
+}
+
+// ------------------------------------------------------------------- offline
+
+// A taxa usada é a congelada no fechamento, nunca a de agora. É isso que impede
+// comprar tudo, fechar e reabrir para colher a taxa nova.
+export function applyOffline(s, seconds, frozenRate) {
+  const gps = Number.isFinite(frozenRate) ? frozenRate : rate(s);
+  const r = B.offlineGain(gps, seconds);
+  s.gold += r.gold;
+  s.stats.goldEver += r.gold;
+  s.stats.playTime += r.seconds;
+  return { ...r, rate: gps, capped: seconds > B.OFFLINE_CAP };
+}
+
+</script>
+<script type="text/plain" data-modulo="render.js">
+// render.js — desenha o estado no canvas. Sem estado próprio: tudo que ele
+// sabe chega por parâmetro, e nada do que ele faz volta para o jogo.
+//
+// Visual desta fase: formas geométricas. Círculos para inimigos, quadrados
+// para heróis e baú, barrinhas de vida e de carga.
+
+import * as B from './balance.js';
+import { room, chest } from './game.js';
+
+const COR = {
+  fundo: '#0d0b12',
+  piso: '#171320',
+  grade: '#221c2e',
+  parede: '#3b2f52',
+  bau: '#e0b155',
+  bauSombra: '#8a6a2c',
+  heroi: '#7fd4ff',
+  heroiVolta: '#ffd479',
+  alcance: 'rgba(127, 212, 255, 0.22)',
+  inimigo: '#c8506a',
+  inimigoFerido: '#e8894f',
+  vida: '#5ad07a',
+  faixa: 'rgba(127, 212, 255, 0.045)',
+};
+
+// A sala cresce com a Tocha, e a tela não. O desenho é sempre a sala inteira
+// encaixada no espaço disponível — é isso que faz a Tocha parecer uma escolha
+// e não só um número maior.
+export function fit(s, w, h, pad = 8) {
+  const r = room(s);
+  const escala = Math.min((w - pad * 2) / r.w, (h - pad * 2) / r.h);
+  return {
+    escala,
+    ox: (w - r.w * escala) / 2,
+    oy: (h - r.h * escala) / 2,
+    w: r.w,
+    h: r.h,
+  };
+}
+
+export function render(ctx, s, w, h) {
+  const v = fit(s, w, h);
+  const { escala: k, ox, oy } = v;
+  const X = (x) => ox + x * k;
+  const Y = (y) => oy + y * k;
+
+  ctx.fillStyle = COR.fundo;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.fillStyle = COR.piso;
+  ctx.fillRect(X(0), Y(0), v.w * k, v.h * k);
+
+  // Grade de pedra: dá escala à sala, senão sala grande e sala pequena parecem
+  // iguais depois do encaixe.
+  const passo = 40;
+  ctx.strokeStyle = COR.grade;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x = passo; x < v.w; x += passo) { ctx.moveTo(X(x), Y(0)); ctx.lineTo(X(x), Y(v.h)); }
+  for (let y = passo; y < v.h; y += passo) { ctx.moveTo(X(0), Y(y)); ctx.lineTo(X(v.w), Y(y)); }
+  ctx.stroke();
+
+  // Tática 4: as faixas viram parte do visual, porque é o que o upgrade faz.
+  if (s.upgrades.tatica >= 4 && s.heroes.length > 1) {
+    const faixa = v.w / s.heroes.length;
+    for (let i = 1; i < s.heroes.length; i += 2) {
+      ctx.fillStyle = COR.faixa;
+      ctx.fillRect(X(faixa * i), Y(0), faixa * k, v.h * k);
+    }
+  }
+
+  ctx.strokeStyle = COR.parede;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(X(0), Y(0), v.w * k, v.h * k);
+
+  // ------------------------------------------------------------------ baú
+  const c = chest(s);
+  const lado = Math.max(10, 18 * k);
+  ctx.fillStyle = COR.bauSombra;
+  ctx.fillRect(X(c.x) - lado / 2, Y(c.y) - lado / 2 + 2, lado, lado);
+  ctx.fillStyle = COR.bau;
+  ctx.fillRect(X(c.x) - lado / 2, Y(c.y) - lado / 2, lado, lado);
+  ctx.fillStyle = COR.bauSombra;
+  ctx.fillRect(X(c.x) - lado / 2, Y(c.y) - lado / 6, lado, Math.max(2, lado / 8));
+
+  // -------------------------------------------------------------- inimigos
+  const raio = Math.max(2, 5 * k);
+  for (const e of s.enemies) {
+    const frac = e.hp / e.max;
+    ctx.fillStyle = frac > 0.6 ? COR.inimigo : COR.inimigoFerido;
+    ctx.beginPath();
+    ctx.arc(X(e.x), Y(e.y), raio, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (frac < 0.999 && raio >= 3) {
+      const bw = raio * 2.6;
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      ctx.fillRect(X(e.x) - bw / 2, Y(e.y) - raio - 5, bw, 2);
+      ctx.fillStyle = COR.vida;
+      ctx.fillRect(X(e.x) - bw / 2, Y(e.y) - raio - 5, bw * frac, 2);
+    }
+  }
+
+  // ---------------------------------------------------------------- heróis
+  const cap = B.backpack(s.upgrades.mochila);
+  const alcance = B.reach(s.upgrades.alcance) * k;
+  const hl = Math.max(6, 11 * k);
+
+  for (const h of s.heroes) {
+    // O raio de alcance é desenhado porque é o efeito do upgrade Alcance, e um
+    // número na planilha não mostra que o herói passou a bater de longe. Só o
+    // contorno: com oito heróis, discos preenchidos viram uma mancha só.
+    if (alcance > 4) {
+      ctx.strokeStyle = COR.alcance;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(X(h.x), Y(h.y), alcance, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    const voltando = h.st === 'return' || h.st === 'deposit';
+    ctx.fillStyle = voltando ? COR.heroiVolta : COR.heroi;
+    ctx.fillRect(X(h.x) - hl / 2, Y(h.y) - hl / 2, hl, hl);
+
+    // Barra de carga: mostra a Mochila enchendo, que é o que dispara a volta.
+    if (h.carry > 0 && hl >= 6) {
+      const bw = hl * 1.5;
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      ctx.fillRect(X(h.x) - bw / 2, Y(h.y) + hl / 2 + 3, bw, 2);
+      ctx.fillStyle = COR.bau;
+      ctx.fillRect(X(h.x) - bw / 2, Y(h.y) + hl / 2 + 3, bw * Math.min(1, h.carry / cap), 2);
+    }
+
+    // Depositando: o baú pulsa junto, para o gesto ter começo e fim visíveis.
+    if (h.st === 'deposit') {
+      ctx.strokeStyle = COR.bau;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = h.dep / B.DEPOSIT_TIME;
+      ctx.beginPath();
+      ctx.arc(X(c.x), Y(c.y), lado, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+}
+
+</script>
+<script type="text/plain" data-modulo="ui.js">
+// ui.js — o painel. Atualiza 4 vezes por segundo, não a cada frame: os números
+// não precisam de 60fps e o celular agradece.
+
+import * as B from './balance.js';
+import * as G from './game.js';
+
+// Os nomes saem do tema, não da planilha. "Velocidade +6%" é planilha,
+// "Botas Élficas" é jogo — e é isso que faz o upgrade parecer uma coisa.
+const EIXOS = {
+  botas:       { nome: 'Botas Élficas',   nota: 'o herói anda mais rápido' },
+  lamina:      { nome: 'Lâmina',          nota: 'dano por segundo' },
+  alcance:     { nome: 'Alcance',         nota: 'bate e coleta de mais longe' },
+  mochila:     { nome: 'Mochila',         nota: 'quantos inimigos antes de voltar' },
+  isca:        { nome: 'Isca',            nota: 'inimigos nascem mais rápido' },
+  tocha:       { nome: 'Tocha',           nota: 'sala maior — e caminhada maior' },
+  companheiro: { nome: 'Companheiro',     nota: 'mais um herói caçando' },
+  tatica:      { nome: 'Tática',          nota: 'como o herói escolhe o alvo' },
+};
+
+const TATICAS = [
+  'alvo aleatório',
+  'o mais próximo',
+  'ignora quem está longe do baú',
+  'com a mochila cheia, prefere perto do baú',
+  'uma faixa da sala por herói',
+];
+
+// ---------------------------------------------------------------- formatação
+
+// Abaixo de 100 as casas decimais são mantidas e os zeros à direita caem: sem
+// isso "10/s → 10,7/s" vira "10/s → 10/s" e o upgrade parece não fazer nada.
+const enxuga = (t) => t.replace(/\.?0+$/, '').replace('.', ',');
+
+export function num(n) {
+  if (!isFinite(n)) return '∞';
+  if (n === 0) return '0';
+  if (n < 100) return enxuga(n.toFixed(2));
+  if (n < 1000) return String(Math.round(n));
+  const u = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud', 'Dd'];
+  let i = 0;
+  let v = n;
+  while (v >= 1000 && i < u.length - 1) { v /= 1000; i++; }
+  // 1e33 vira 999,9999 por arredondamento binário e sairia como "1000No".
+  if (v >= 999.995 && i < u.length - 1) { v /= 1000; i++; }
+  return `${v.toFixed(v < 10 ? 2 : v < 100 ? 1 : 0).replace('.', ',')}${u[i]}`;
+}
+
+const dec = (n, casas = 0) => n.toFixed(casas).replace('.', ',');
+
+export function duracao(seg) {
+  const s = Math.max(0, Math.floor(seg));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor(s / 60) % 60;
+  if (h) return `${h}h ${String(m).padStart(2, '0')}min`;
+  if (m) return `${m}min ${String(s % 60).padStart(2, '0')}s`;
+  return `${s}s`;
+}
+
+// Efeito atual e efeito do próximo nível, lado a lado. O jogador precisa ver o
+// que o botão compra antes de tocar nele.
+function efeito(id, lv) {
+  switch (id) {
+    case 'botas':   return [`${dec(B.moveSpeed(lv))} px/s`, `${dec(B.moveSpeed(lv + 1))} px/s`];
+    case 'lamina':  return [`${num(B.damage(lv))}/s`, `${num(B.damage(lv + 1))}/s`];
+    case 'alcance': return [`${B.reach(lv)} px`, `${B.reach(lv + 1)} px`];
+    case 'mochila': return [`${B.backpack(lv)}`, `${B.backpack(lv + 1)}`];
+    case 'isca':    return [`1 a cada ${dec(B.spawnInterval(lv), 2)}s`, `1 a cada ${dec(B.spawnInterval(lv + 1), 2)}s`];
+    case 'tocha': {
+      const a = B.roomSize(lv);
+      const b = B.roomSize(lv + 1);
+      return [`${a.w}×${a.h}`, `${b.w}×${b.h}`];
+    }
+    case 'companheiro': return [`${B.heroCount(lv)} herói${lv ? 's' : ''}`, `${B.heroCount(lv + 1)} heróis`];
+    case 'tatica':      return [TATICAS[lv], TATICAS[Math.min(lv + 1, TATICAS.length - 1)]];
+    default: return ['', ''];
+  }
+}
+
+// ------------------------------------------------------------------- montagem
+
+export function montar(raiz, acoes) {
+  const el = {};
+  const q = (sel) => raiz.querySelector(sel);
+
+  el.ouro = q('#ouro');
+  el.taxa = q('#taxa');
+  el.andar = q('#andar');
+  el.essencia = q('#essencia');
+  el.multiplicador = q('#multiplicador');
+  el.gargalo = q('#gargalo');
+  el.lista = q('#lista');
+  el.descer = q('#descer');
+  el.prestigio = q('#prestigio');
+  el.lote = [...raiz.querySelectorAll('[data-lote]')];
+  el.relatorio = q('#relatorio');
+
+  let lote = 1;
+  el.lote.forEach((b) => {
+    b.addEventListener('click', () => {
+      lote = b.dataset.lote === 'max' ? 'max' : Number(b.dataset.lote);
+      el.lote.forEach((o) => o.classList.toggle('ativo', o === b));
+      acoes.redesenhar();
+    });
+  });
+
+  // Uma linha por eixo, criada uma vez só. Depois disso a atualização só troca
+  // texto e classe — nada de recriar DOM 4 vezes por segundo.
+  const linhas = {};
+  for (const id of B.UPGRADE_IDS) {
+    const li = document.createElement('li');
+    li.className = 'eixo';
+    li.innerHTML = `
+      <div class="eixo-txt">
+        <div class="eixo-topo"><span class="eixo-nome"></span><span class="eixo-nivel"></span></div>
+        <div class="eixo-nota"></div>
+        <div class="eixo-efeito"></div>
+      </div>
+      <button class="comprar" type="button">
+        <span class="comprar-qtd"></span>
+        <span class="comprar-custo"></span>
+      </button>`;
+    const botao = li.querySelector('.comprar');
+    botao.addEventListener('click', () => acoes.comprar(id, lote));
+    linhas[id] = {
+      li,
+      nome: li.querySelector('.eixo-nome'),
+      nivel: li.querySelector('.eixo-nivel'),
+      nota: li.querySelector('.eixo-nota'),
+      efeito: li.querySelector('.eixo-efeito'),
+      botao,
+      qtd: li.querySelector('.comprar-qtd'),
+      custo: li.querySelector('.comprar-custo'),
+    };
+    linhas[id].nome.textContent = EIXOS[id].nome;
+    linhas[id].nota.textContent = EIXOS[id].nota;
+    el.lista.appendChild(li);
+  }
+
+  el.descer.addEventListener('click', acoes.descer);
+  el.prestigio.addEventListener('click', acoes.prestigio);
+
+  return {
+    el,
+    linhas,
+    get lote() { return lote; },
+  };
+}
+
+// ---------------------------------------------------------------- atualização
+
+export function atualizar(ui, s) {
+  const { el, linhas, lote } = ui;
+
+  el.ouro.textContent = num(s.gold);
+  el.taxa.textContent = `${num(G.rate(s))}/s`;
+  el.andar.textContent = s.floor;
+  el.essencia.textContent = s.essence ? num(s.essence) : '—';
+  // O multiplicador vai na linha de baixo: junto com o número ele estoura o
+  // marcador assim que a essência passa de três dígitos.
+  el.multiplicador.textContent = s.essence ? `×${dec(G.multiplier(s), 2)}` : 'permanente';
+
+  // Dizer qual lado está travando é o que transforma a fórmula em conselho.
+  const b = B.bottleneck({ upgrades: s.upgrades, floor: s.floor });
+  el.gargalo.textContent = b.limitedBy === 'spawn'
+    ? 'campo vazio: os heróis esperam spawn — Isca e Tocha'
+    : 'os heróis não dão conta: Lâmina, Botas, Mochila';
+  el.gargalo.className = b.limitedBy === 'spawn' ? 'gargalo spawn' : 'gargalo herois';
+
+  for (const id of B.UPGRADE_IDS) {
+    const l = linhas[id];
+    const lv = s.upgrades[id];
+    const teto = B.upgradeCap(id);
+    const p = G.buyPreview(s, id, lote);
+    const [agora, prox] = efeito(id, lv);
+
+    l.nivel.textContent = isFinite(teto) ? `nv ${lv}/${teto}` : `nv ${lv}`;
+
+    if (lv >= teto) {
+      l.efeito.textContent = agora;
+      l.botao.disabled = true;
+      l.qtd.textContent = 'no máximo';
+      l.custo.textContent = '';
+      l.li.classList.add('maximo');
+      continue;
+    }
+
+    l.li.classList.remove('maximo');
+    l.efeito.innerHTML = `${agora} <span class="seta">→</span> <b>${prox}</b>`;
+    l.qtd.textContent = lote === 'max' ? (p.count ? `×${p.count}` : 'Máx') : `×${p.count}`;
+    l.custo.textContent = num(p.cost || B.upgradeCost(id, lv));
+    l.botao.disabled = !p.affordable;
+  }
+
+  // ------------------------------------------------------------ descer
+  const custoDescer = B.descendCost(s.floor);
+  el.descer.disabled = s.gold < custoDescer;
+  el.descer.querySelector('.rot').textContent = `Descer ao andar ${s.floor + 1}`;
+  el.descer.querySelector('.val').textContent = num(custoDescer);
+
+  // --------------------------------------------------------- prestígio
+  const ganho = G.prestigeGain(s);
+  const pode = G.canPrestige(s);
+  el.prestigio.hidden = s.stats.bestFloor < B.TUNING.prestigeFloor && !s.essence && !pode;
+  el.prestigio.disabled = !pode;
+  el.prestigio.querySelector('.rot').textContent = pode
+    ? 'Morrer e recomeçar'
+    : `Prestígio no andar ${primeiroAndarValido(s.essence)}`;
+  el.prestigio.querySelector('.val').textContent = pode ? `+${num(ganho)} essência` : `+${num(ganho)}`;
+}
+
+// Menor andar cujo ganho já satisfaz a regra de 1,5x. Mostrar o alvo é melhor
+// que mostrar um botão apagado sem explicação.
+function primeiroAndarValido(essencia) {
+  for (let f = B.TUNING.prestigeFloor; f < 400; f++) if (B.canPrestige(f, essencia)) return f;
+  return '—';
+}
+
+// ------------------------------------------------------------------ relatório
+
+export function relatorio(el, r, aoFechar) {
+  el.querySelector('#rel-tempo').textContent = duracao(r.seconds);
+  el.querySelector('#rel-ouro').textContent = num(r.gold);
+  el.querySelector('#rel-taxa').textContent = `${num(r.rate)}/s congelado no fechamento, metade paga`;
+  el.querySelector('#rel-teto').hidden = !r.capped;
+  el.hidden = false;
+  el.querySelector('#rel-ok').onclick = () => { el.hidden = true; aoFechar?.(); };
+}
+
+</script>
+<script type="text/plain" data-modulo="save.js">
+// save.js — persistência isolada atrás de salvar e carregar. Na fase 5 estas
+// duas funções viram chamada de rede e nada mais no jogo precisa mudar.
+
+const CHAVE = 'heroi-de-masmorra/v1';
+
+// A taxa é gravada junto com o estado, congelada no fechamento. É ela que paga
+// o offline: recalcular na volta deixaria o jogador comprar tudo, fechar e
+// reabrir para colher a taxa nova.
+export function salvar(estado, taxa) {
+  try {
+    localStorage.setItem(CHAVE, JSON.stringify({ em: Date.now(), taxa, estado }));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function carregar() {
+  try {
+    const cru = localStorage.getItem(CHAVE);
+    if (!cru) return null;
+    const d = JSON.parse(cru);
+    if (!d || !d.estado || typeof d.estado.floor !== 'number') return null;
+    return { estado: d.estado, taxa: Number(d.taxa) || 0, em: Number(d.em) || Date.now() };
+  } catch {
+    return null;
+  }
+}
+
+export function apagar() {
+  try {
+    localStorage.removeItem(CHAVE);
+  } catch {
+    /* modo privado pode recusar; não é motivo para derrubar o jogo */
+  }
+}
+
+</script>
+<script type="text/plain" data-modulo="main.js">
+// main.js — o laço. Acumulador de tempo com passo fixo e teto de 20 ticks por
+// frame, para o jogo não travar quando o app volta de suspenso com meia hora
+// de atraso na conta.
+
+import { TICK } from './balance.js';
+import * as G from './game.js';
+import { render } from './render.js';
+import * as UI from './ui.js';
+import * as save from './save.js';
+
+const MAX_TICKS = 20;
+const AUTOSAVE = 10_000;
+const PAINEL = 250;
+
+const tela = document.getElementById('campo');
+const ctx = tela.getContext('2d', { alpha: false });
+
+let estado;
+let ui;
+
+// ------------------------------------------------------------------ carregar
+
+const salvo = save.carregar();
+if (salvo) {
+  estado = salvo.estado;
+  G.syncHeroes(estado);
+} else {
+  estado = G.createState();
+}
+
+// -------------------------------------------------------------------- painel
+
+ui = UI.montar(document, {
+  redesenhar: () => UI.atualizar(ui, estado),
+  comprar: (id, lote) => {
+    if (G.buyUpgrade(estado, id, lote)) {
+      vibrar(8);
+      UI.atualizar(ui, estado);
+    }
+  },
+  descer: () => {
+    if (G.descend(estado)) {
+      vibrar(20);
+      UI.atualizar(ui, estado);
+    }
+  },
+  prestigio: () => {
+    if (!G.canPrestige(estado)) return;
+    if (!confirm('O herói morre e uma nova geração desce com o conhecimento herdado.\n\nVocê perde ouro, upgrades e andar. Mantém essência, o multiplicador e a Tática.\n\nDescansar?')) return;
+    G.prestige(estado);
+    vibrar(40);
+    salvar();
+    UI.atualizar(ui, estado);
+  },
+});
+
+// ------------------------------------------------------------------- offline
+
+if (salvo) {
+  const fora = (Date.now() - salvo.em) / 1000;
+  if (fora > 60 && salvo.taxa > 0) {
+    const r = G.applyOffline(estado, fora, salvo.taxa);
+    if (r.gold > 0) UI.relatorio(document.getElementById('relatorio'), r, () => UI.atualizar(ui, estado));
+  }
+}
+
+UI.atualizar(ui, estado);
+
+// -------------------------------------------------------------------- canvas
+
+// devicePixelRatio, senão o campo fica borrado em tela retina — que é onde o
+// jogo vai ser jogado.
+function redimensionar() {
+  const r = tela.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  tela.width = Math.round(r.width * dpr);
+  tela.height = Math.round(r.height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+redimensionar();
+addEventListener('resize', redimensionar);
+addEventListener('orientationchange', redimensionar);
+
+// ---------------------------------------------------------------------- laço
+
+let anterior = performance.now();
+let sobra = 0;
+let ultimoPainel = 0;
+let ultimoSave = Date.now();
+
+function frame(agora) {
+  requestAnimationFrame(frame);
+
+  sobra += (agora - anterior) / 1000;
+  anterior = agora;
+
+  let n = 0;
+  while (sobra >= TICK && n < MAX_TICKS) {
+    G.tick(estado, TICK);
+    sobra -= TICK;
+    n++;
+  }
+  // Voltou de suspenso com um buraco grande: descarta o resto em vez de tentar
+  // alcançar. O tempo fora é pago pelo relatório offline, não pelo laço.
+  if (sobra > TICK * MAX_TICKS) sobra = 0;
+
+  const r = tela.getBoundingClientRect();
+  render(ctx, estado, r.width, r.height);
+
+  if (agora - ultimoPainel > PAINEL) {
+    ultimoPainel = agora;
+    UI.atualizar(ui, estado);
+  }
+  if (Date.now() - ultimoSave > AUTOSAVE) salvar();
+}
+requestAnimationFrame(frame);
+
+// ------------------------------------------------------------------- salvar
+
+function salvar() {
+  ultimoSave = Date.now();
+  save.salvar(estado, G.rate(estado));
+}
+
+// pagehide é o único evento confiável no iOS; visibilitychange cobre o resto.
+addEventListener('pagehide', salvar);
+addEventListener('visibilitychange', () => { if (document.hidden) salvar(); });
+
+// -------------------------------------------------------------------- extras
+
+function vibrar(ms) {
+  try { navigator.vibrate?.(ms); } catch { /* desktop não tem, e tudo bem */ }
+}
+
+document.getElementById('apagar')?.addEventListener('click', () => {
+  if (!confirm('Apagar o save e começar do zero? Isso não tem volta.')) return;
+  save.apagar();
+  location.reload();
+});
+
+if ('serviceWorker' in navigator) {
+  addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+
+// ------------------------------------------------------- ponte de teste
+//
+// Sem isto não dá para testar o jogo: semear o localStorage pelo console não
+// funciona, porque o autosave do pagehide sobrescreve a semente no reload. E
+// esperar catorze minutos pela primeira descida a cada verificação inviabiliza
+// olhar o andar 9 ou o prestígio.
+//
+// Não abre buraco novo: enquanto o servidor autoritativo da fase 5 não existe,
+// o save já é um JSON editável no devtools. Quando ele existir, quem manda é o
+// servidor e isto vira só conveniência local.
+
+globalThis.masmorra = {
+  get estado() { return estado; },
+
+  ouro(n) { estado.gold = n; return this.pronto(); },
+  andar(n) {
+    estado.floor = Math.max(1, Math.floor(n));
+    estado.stats.bestFloor = Math.max(estado.stats.bestFloor, estado.floor);
+    estado.enemies = [];
+    return this.pronto();
+  },
+  essencia(n) { estado.essence = n; return this.pronto(); },
+  nivel(id, n) {
+    if (!(id in estado.upgrades)) throw new Error(`upgrade desconhecido: ${id}`);
+    estado.upgrades[id] = Math.max(0, Math.floor(n));
+    G.syncHeroes(estado);
+    return this.pronto();
+  },
+
+  // Finge que o app ficou fechado por N horas, com a taxa de agora congelada.
+  offline(horas = 4) {
+    const r = G.applyOffline(estado, horas * 3600, G.rate(estado));
+    UI.relatorio(document.getElementById('relatorio'), r, () => UI.atualizar(ui, estado));
+    return r;
+  },
+
+  zerar() { save.apagar(); location.reload(); },
+
+  pronto() {
+    G.syncHeroes(estado);
+    UI.atualizar(ui, estado);
+    salvar();
+    return { andar: estado.floor, ouro: estado.gold, taxa: G.rate(estado), niveis: { ...estado.upgrades } };
+  },
+};
+
+console.info('ponte de teste: masmorra.ouro(1e6), .andar(9), .nivel("lamina", 40), .offline(6), .zerar()');
+
+</script>
+
+<script type="module">
+  // Cada módulo vira um Blob URL, na ordem de dependência, e os imports são
+  // reescritos para o Blob já criado. Nenhuma transformação de sintaxe.
+  const ordem = ["balance.js","game.js","render.js","ui.js","save.js","main.js"];
+  const urls = {};
+  for (const nome of ordem) {
+    const src = document.querySelector('[data-modulo="' + nome + '"]').textContent
+      .replace(/from\s+'\.\/([\w.-]+\.js)'/g, (_, dep) => "from '" + urls[dep] + "'");
+    urls[nome] = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+  }
+  await import(urls["main.js"]);
+</script>
+</body>
+</html>

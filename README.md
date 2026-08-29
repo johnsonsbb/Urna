@@ -35,6 +35,21 @@ npm run sweep 24  # compara variantes de balanceamento lado a lado
 npm run verify    # confere a fórmula analítica contra a simulação de tick
 ```
 
+## Arquivo único, sem instalar nada
+
+```bash
+node tools/bundle.mjs      # dist/heroi-de-masmorra.html
+```
+
+Gera o jogo inteiro num HTML só, que roda com duplo clique — sem servidor, sem
+Node, sem clone. Cada módulo entra na página como texto puro e um carregador de
+seis linhas os transforma em Blob URLs, reescrevendo os imports. O navegador
+continua carregando módulos ES de verdade e o código empacotado é byte a byte o
+mesmo de `src/`, então não existe versão empacotada que divirja da fonte.
+
+O arquivo já vem versionado em `dist/`, para poder ser baixado direto do
+GitHub sem precisar montar o projeto.
+
 ## Testar
 
 No navegador, `globalThis.masmorra` é uma ponte para não esperar o jogo chegar
