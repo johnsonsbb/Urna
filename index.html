@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0d0b12">
+<meta name="description" content="Um herói desce a masmorra sozinho. Você compra os upgrades e assiste.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Herói de Masmorra</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<main id="app">
+
+  <section id="topo">
+    <div class="marcador">
+      <span class="rot">Ouro</span>
+      <strong id="ouro">0</strong>
+      <span class="sub" id="taxa">0/s</span>
+    </div>
+    <div class="marcador">
+      <span class="rot">Andar</span>
+      <strong id="andar">1</strong>
+      <span class="sub">masmorra</span>
+    </div>
+    <div class="marcador">
+      <span class="rot">Essência</span>
+      <strong id="essencia">—</strong>
+      <span class="sub" id="multiplicador">permanente</span>
+    </div>
+  </section>
+
+  <canvas id="campo" aria-label="A sala da masmorra: o herói caça sozinho"></canvas>
+
+  <p id="gargalo" class="gargalo herois"></p>
+
+  <section id="painel">
+
+    <div id="acoes">
+      <button id="descer" class="acao" type="button">
+        <span class="rot">Descer ao andar 2</span>
+        <span class="val">300</span>
+      </button>
+      <button id="prestigio" class="acao prest" type="button" hidden>
+        <span class="rot">Prestígio</span>
+        <span class="val">+0</span>
+      </button>
+    </div>
+
+    <div id="lotes" role="group" aria-label="Quantidade por compra">
+      <button data-lote="1" class="ativo" type="button">1</button>
+      <button data-lote="10" type="button">10</button>
+      <button data-lote="max" type="button">Máx</button>
+    </div>
+
+    <ul id="lista"></ul>
+
+    <footer id="rodape">
+      <button id="apagar" type="button">Apagar o save</button>
+    </footer>
+
+  </section>
+
+</main>
+
+<div id="relatorio" hidden>
+  <div class="cartao">
+    <h2>O herói não parou</h2>
+    <p class="linha">Você esteve fora por <b id="rel-tempo">—</b>.</p>
+    <p class="ouro-off"><b id="rel-ouro">0</b> de ouro</p>
+    <p class="nota" id="rel-taxa">—</p>
+    <p class="nota teto" id="rel-teto" hidden>O acúmulo tem teto de 4 horas — o que passou disso não contou.</p>
+    <button id="rel-ok" type="button">Continuar a descida</button>
+  </div>
+</div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

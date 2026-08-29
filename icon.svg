@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Herói de Masmorra">
+  <rect width="512" height="512" fill="#0d0b12"/>
+  <rect x="56" y="96" width="400" height="320" fill="#171320" stroke="#3b2f52" stroke-width="10"/>
+  <g stroke="#221c2e" stroke-width="6">
+    <path d="M156 96v320M256 96v320M356 96v320M56 196h400M56 296h400"/>
+  </g>
+  <rect x="216" y="216" width="80" height="80" fill="#e0b155"/>
+  <rect x="216" y="272" width="80" height="16" fill="#8a6a2c"/>
+  <rect x="104" y="140" width="56" height="56" fill="#7fd4ff"/>
+  <circle cx="372" cy="168" r="28" fill="#c8506a"/>
+  <circle cx="148" cy="344" r="28" fill="#c8506a"/>
+  <circle cx="360" cy="348" r="28" fill="#e8894f"/>
+</svg>

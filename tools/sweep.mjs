@@ -8,16 +8,18 @@ const HOURS = Number(process.argv[2]) || 24;
 const DEFAULTS = structuredClone(TUNING);
 
 // Cada variante é um patch sobre os números do plano.
+// A primeira linha é o balanceamento em vigor; a segunda são os números do
+// plano como estavam escritos, para a comparação ficar registrada. O resto é
+// sensibilidade: mexer num eixo de cada vez e ver a curva reagir.
 const VARIANTS = [
-  ['N + descer x6',      { cost: { tocha: { cap: Infinity } }, spawnFloorSec: 0.02, spawnStep: 0.95, valueStep: 4, hpStep: 3.5, descendStep: 6 }],
-  ['N + descer x7',      { cost: { tocha: { cap: Infinity } }, spawnFloorSec: 0.02, spawnStep: 0.95, valueStep: 4, hpStep: 3.5, descendStep: 7 }],
-  ['N + descer x8',      { cost: { tocha: { cap: Infinity } }, spawnFloorSec: 0.02, spawnStep: 0.95, valueStep: 4, hpStep: 3.5, descendStep: 8 }],
-  ['N + descer x9',      { cost: { tocha: { cap: Infinity } }, spawnFloorSec: 0.02, spawnStep: 0.95, valueStep: 4, hpStep: 3.5, descendStep: 9 }],
-  ['N + descer x11',      { cost: { tocha: { cap: Infinity } }, spawnFloorSec: 0.02, spawnStep: 0.95, valueStep: 4, hpStep: 3.5, descendStep: 11 }],
-  ['N + hp 3,3',          { cost: { tocha: { cap: Infinity } }, spawnFloorSec: 0.02, spawnStep: 0.95, valueStep: 4, hpStep: 3.5, hpStep: 3.3 }],
-  ['N + hp 3,7',          { cost: { tocha: { cap: Infinity } }, spawnFloorSec: 0.02, spawnStep: 0.95, valueStep: 4, hpStep: 3.5, hpStep: 3.7 }],
-  ['N + descer 8, hp 3,3',{ cost: { tocha: { cap: Infinity } }, spawnFloorSec: 0.02, spawnStep: 0.95, valueStep: 4, hpStep: 3.5, descendStep: 8, hpStep: 3.3 }],
-  ['N + prestigio 0,10',  { cost: { tocha: { cap: Infinity } }, spawnFloorSec: 0.02, spawnStep: 0.95, valueStep: 4, hpStep: 3.5, essencePerPoint: 0.10 }],
+  ['ajustado (em vigor)',    {}],
+  ['plano original',         { valueStep: 6, spawnStep: 0.92, spawnFloorSec: 0.15, descendStep: 11, cost: { tocha: { cap: 25 } } }],
+  ['só o valor do andar ×6', { valueStep: 6 }],
+  ['só a tocha com teto 25', { cost: { tocha: { cap: 25 } } }],
+  ['só o piso da isca 0,15s',{ spawnFloorSec: 0.15 }],
+  ['só descer ×11',          { descendStep: 11 }],
+  ['descer ×6',              { descendStep: 6 }],
+  ['prestígio ×0,10',        { essencePerPoint: 0.10 }],
 ];
 
 function apply(patch) {

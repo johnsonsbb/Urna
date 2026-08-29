@@ -1,0 +1,17 @@
+{
+  "name": "Herói de Masmorra",
+  "short_name": "Masmorra",
+  "description": "Um herói desce a masmorra sozinho. Você compra os upgrades e assiste.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0b12",
+  "theme_color": "#0d0b12",
+  "lang": "pt-BR",
+  "categories": ["games"],
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
