@@ -90,7 +90,9 @@ function releaseClaims(s, i) {
 export function pickTarget(s, i) {
   const h = s.heroes[i];
   const lv = s.upgrades.tatica;
-  const alive = s.enemies;
+  // Os mortos deste tick só saem de s.enemies no fim dele, então filtrar aqui
+  // é o que impede um herói de sair andando atrás de um alvo que já caiu.
+  const alive = s.enemies.filter((e) => e.hp > 0);
   if (!alive.length) return null;
 
   // Nível 0: alvo aleatório, sem reserva — é o caos que os outros níveis curam.
