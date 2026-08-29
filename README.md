@@ -35,6 +35,26 @@ npm run sweep 24  # compara variantes de balanceamento lado a lado
 npm run verify    # confere a fórmula analítica contra a simulação de tick
 ```
 
+## Testar
+
+No navegador, `globalThis.masmorra` é uma ponte para não esperar o jogo chegar
+sozinho onde você quer olhar:
+
+```js
+masmorra.andar(9)              // pula para o andar 9
+masmorra.ouro(1e9)             // enche o bolso
+masmorra.nivel('lamina', 60)   // define o nível de um eixo
+masmorra.essencia(300)         // testa o multiplicador de prestígio
+masmorra.offline(6)            // finge seis horas fora e abre o relatório
+masmorra.zerar()               // apaga o save e recomeça
+masmorra.estado                // o estado vivo, para inspecionar
+```
+
+Ela existe porque semear o `localStorage` pelo console não funciona: o autosave
+do `pagehide` sobrescreve a semente no reload. Enquanto não há servidor
+autoritativo, o save já é um JSON editável no devtools — a ponte não abre buraco
+novo, só evita catorze minutos de espera por verificação.
+
 ## Arquitetura
 
 ```

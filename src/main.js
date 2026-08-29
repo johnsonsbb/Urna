@@ -141,3 +141,51 @@ document.getElementById('apagar')?.addEventListener('click', () => {
 if ('serviceWorker' in navigator) {
   addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
+
+// ------------------------------------------------------- ponte de teste
+//
+// Sem isto não dá para testar o jogo: semear o localStorage pelo console não
+// funciona, porque o autosave do pagehide sobrescreve a semente no reload. E
+// esperar catorze minutos pela primeira descida a cada verificação inviabiliza
+// olhar o andar 9 ou o prestígio.
+//
+// Não abre buraco novo: enquanto o servidor autoritativo da fase 5 não existe,
+// o save já é um JSON editável no devtools. Quando ele existir, quem manda é o
+// servidor e isto vira só conveniência local.
+
+globalThis.masmorra = {
+  get estado() { return estado; },
+
+  ouro(n) { estado.gold = n; return this.pronto(); },
+  andar(n) {
+    estado.floor = Math.max(1, Math.floor(n));
+    estado.stats.bestFloor = Math.max(estado.stats.bestFloor, estado.floor);
+    estado.enemies = [];
+    return this.pronto();
+  },
+  essencia(n) { estado.essence = n; return this.pronto(); },
+  nivel(id, n) {
+    if (!(id in estado.upgrades)) throw new Error(`upgrade desconhecido: ${id}`);
+    estado.upgrades[id] = Math.max(0, Math.floor(n));
+    G.syncHeroes(estado);
+    return this.pronto();
+  },
+
+  // Finge que o app ficou fechado por N horas, com a taxa de agora congelada.
+  offline(horas = 4) {
+    const r = G.applyOffline(estado, horas * 3600, G.rate(estado));
+    UI.relatorio(document.getElementById('relatorio'), r, () => UI.atualizar(ui, estado));
+    return r;
+  },
+
+  zerar() { save.apagar(); location.reload(); },
+
+  pronto() {
+    G.syncHeroes(estado);
+    UI.atualizar(ui, estado);
+    salvar();
+    return { andar: estado.floor, ouro: estado.gold, taxa: G.rate(estado), niveis: { ...estado.upgrades } };
+  },
+};
+
+console.info('ponte de teste: masmorra.ouro(1e6), .andar(9), .nivel("lamina", 40), .offline(6), .zerar()');
