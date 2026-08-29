@@ -1,0 +1,15 @@
+{
+  "name": "heroi-de-masmorra",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Idle de masmorra: o herói caça sozinho, você compra os upgrades",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tools/*.test.mjs",
+    "sim": "node tools/simulate.mjs",
+    "sweep": "node tools/sweep.mjs",
+    "verify": "node tools/verify.mjs",
+    "serve": "node tools/serve.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
