@@ -42,10 +42,14 @@ node tools/bundle.mjs      # dist/heroi-de-masmorra.html
 ```
 
 Gera o jogo inteiro num HTML só, que roda com duplo clique — sem servidor, sem
-Node, sem clone. Cada módulo entra na página como texto puro e um carregador de
-seis linhas os transforma em Blob URLs, reescrevendo os imports. O navegador
-continua carregando módulos ES de verdade e o código empacotado é byte a byte o
-mesmo de `src/`, então não existe versão empacotada que divirja da fonte.
+Node, sem clone. Cada módulo vira uma função que devolve seus exports, e os
+imports viram leitura de um registro: sai um script clássico, sem módulos, sem
+Blob URL e sem `data:` URL, então nenhuma CSP restritiva tem o que recusar.
+
+A ordem dos módulos sai dos imports reais e o corpo da página sai do próprio
+`index.html`, então não existe uma segunda cópia do jogo para envelhecer. Se
+alguém escrever um `export default` ou um `export {}`, o empacotador falha em
+vez de gerar um arquivo quebrado em silêncio.
 
 O arquivo já vem versionado em `dist/`, para poder ser baixado direto do
 GitHub sem precisar montar o projeto.

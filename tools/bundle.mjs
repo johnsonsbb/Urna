@@ -4,11 +4,9 @@
 //   node tools/bundle.mjs              -> dist/heroi-de-masmorra.html
 //   node tools/bundle.mjs --artefato   -> dist/artefato.html (sem <html>/<head>)
 //
-// Como funciona: cada módulo entra na página como texto puro, e um carregador
-// de seis linhas transforma cada um em Blob URL, reescrevendo os imports para
-// apontar para o Blob do módulo anterior. Assim nada precisa ser reescrito na
-// marra — o navegador continua carregando módulos ES de verdade, e o código
-// empacotado é byte a byte o mesmo do src/.
+// Cada módulo vira uma função que devolve seus exports, e os imports viram
+// leitura de um registro. Um script clássico só, sem módulos, sem Blob URL e
+// sem data: URL — nada que uma CSP restritiva possa recusar.
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +17,10 @@ const ARTEFATO = process.argv.includes('--artefato');
 const ENTRADA = 'main.js';
 
 const ler = (rel) => readFile(join(RAIZ, rel), 'utf8');
+
+const RE_DEP = /from\s+'\.\/([\w.-]+\.js)'/g;
+const RE_NOME_VAR = /^export\s+(?:const|let|var)\s+([A-Za-z_$][\w$]*)/gm;
+const RE_NOME_FN = /^export\s+function\s+([A-Za-z_$][\w$]*)/gm;
 
 // Ordem topológica a partir dos imports reais, para não depender de uma lista
 // escrita à mão que envelhece à primeira dependência nova.
@@ -33,7 +35,7 @@ async function ordenar(entrada) {
     visitando.add(nome);
 
     const src = await ler(join('src', nome));
-    for (const m of src.matchAll(/from\s+'\.\/([\w.-]+\.js)'/g)) await visitar(m[1]);
+    for (const m of src.matchAll(RE_DEP)) await visitar(m[1]);
 
     visitando.delete(nome);
     fontes.set(nome, src);
@@ -42,6 +44,27 @@ async function ordenar(entrada) {
 
   await visitar(entrada);
   return { ordem, fontes };
+}
+
+// Troca as declarações de import por leitura do registro e tira o `export` das
+// declarações, guardando os nomes para devolver no fim.
+function transformar(nome, src) {
+  const exportados = [
+    ...[...src.matchAll(RE_NOME_VAR)].map((m) => m[1]),
+    ...[...src.matchAll(RE_NOME_FN)].map((m) => m[1]),
+  ];
+
+  const corpo = src
+    .replace(/^import\s+\*\s+as\s+([A-Za-z_$][\w$]*)\s+from\s+'\.\/([\w.-]+\.js)';?$/gm,
+      (_, alias, dep) => `const ${alias} = __mods[${JSON.stringify(dep)}];`)
+    .replace(/^import\s+\{([^}]+)\}\s+from\s+'\.\/([\w.-]+\.js)';?$/gm,
+      (_, nomes, dep) => `const {${nomes}} = __mods[${JSON.stringify(dep)}];`)
+    .replace(/^export\s+/gm, '');
+
+  const sobrou = corpo.match(/^\s*(import|export)\s/m);
+  if (sobrou) throw new Error(`${nome}: import/export não tratado — "${sobrou[0].trim()}"`);
+
+  return `__mods[${JSON.stringify(nome)}] = (function () {\n${corpo}\nreturn { ${exportados.join(', ')} };\n})();`;
 }
 
 const { ordem, fontes } = await ordenar(ENTRADA);
@@ -54,26 +77,13 @@ const icone = await ler('icon.svg');
 const corpo = html.slice(html.indexOf('<body>') + 6, html.indexOf('</body>')).trim()
   .replace(/\n?\s*<script type="module"[^>]*><\/script>/, '');
 
-const favicon = `data:image/svg+xml;base64,${Buffer.from(icone).toString('base64')}`;
+const script = `<script>
+(function () {
+  'use strict';
+  const __mods = {};
 
-// Texto puro em vez de template literal: o código tem crases e ${...}, que
-// dentro de uma string JS precisariam de escape e quebrariam na primeira
-// distração.
-const modulos = ordem
-  .map((nome) => `<script type="text/plain" data-modulo="${nome}">\n${fontes.get(nome)}\n</script>`)
-  .join('\n');
-
-const carregador = `<script type="module">
-  // Cada módulo vira um Blob URL, na ordem de dependência, e os imports são
-  // reescritos para o Blob já criado. Nenhuma transformação de sintaxe.
-  const ordem = ${JSON.stringify(ordem)};
-  const urls = {};
-  for (const nome of ordem) {
-    const src = document.querySelector('[data-modulo="' + nome + '"]').textContent
-      .replace(/from\\s+'\\.\\/([\\w.-]+\\.js)'/g, (_, dep) => "from '" + urls[dep] + "'");
-    urls[nome] = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
-  }
-  await import(urls[${JSON.stringify(ENTRADA)}]);
+${ordem.map((n) => transformar(n, fontes.get(n))).join('\n\n')}
+})();
 </script>`;
 
 const miolo = `<title>Herói de Masmorra</title>
@@ -83,25 +93,11 @@ ${css}
 
 ${corpo}
 
-${modulos}
+${script}`;
 
-${carregador}`;
+const favicon = `data:image/svg+xml;base64,${Buffer.from(icone).toString('base64')}`;
 
-const saida = ARTEFATO ? miolo : `<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#0d0b12">
-<link rel="icon" href="${favicon}">
-${miolo.replace('<title>', '<title>')}
-</head>
-<body>
-</body>
-</html>`.replace('</head>\n<body>\n</body>', `</head>\n<body>\n</body>`);
-
-// No modo standalone o miolo tem que ficar dentro do body, não do head.
-const final = ARTEFATO ? saida : `<!doctype html>
+const final = ARTEFATO ? miolo : `<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -116,9 +112,7 @@ ${css}
 <body>
 ${corpo}
 
-${modulos}
-
-${carregador}
+${script}
 </body>
 </html>`;
 
@@ -127,4 +121,4 @@ const arquivo = ARTEFATO ? 'dist/artefato.html' : 'dist/heroi-de-masmorra.html';
 await writeFile(join(RAIZ, arquivo), final);
 
 console.log(`  ${arquivo}  —  ${(final.length / 1024).toFixed(0)} KB`);
-console.log(`  módulos na ordem: ${ordem.join(' → ')}`);
+console.log(`  módulos: ${ordem.join(' → ')}`);

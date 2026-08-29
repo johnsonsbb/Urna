@@ -324,7 +324,12 @@ body {
   </div>
 </div>
 
-<script type="text/plain" data-modulo="balance.js">
+<script>
+(function () {
+  'use strict';
+  const __mods = {};
+
+__mods["balance.js"] = (function () {
 // balance.js — constantes e fórmulas.
 //
 // REGRA: este arquivo não pode referenciar document, window, canvas ou
@@ -333,15 +338,15 @@ body {
 
 // ---------------------------------------------------------------- simulação
 
-export const TICK = 0.05;          // passo fixo, em segundos
-export const DEPOSIT_TIME = 0.5;   // tempo parado no baú
-export const SPAWN_MARGIN = 10;    // borda onde inimigo não nasce
-export const CHEST_CLEAR = 26;     // raio livre em volta do baú
+const TICK = 0.05;          // passo fixo, em segundos
+const DEPOSIT_TIME = 0.5;   // tempo parado no baú
+const SPAWN_MARGIN = 10;    // borda onde inimigo não nasce
+const CHEST_CLEAR = 26;     // raio livre em volta do baú
 
 // ------------------------------------------------------------------- sala
 
-export const baseRoom = () => roomSize(0);
-export const baseArea = () => { const r = baseRoom(); return r.w * r.h; };
+const baseRoom = () => roomSize(0);
+const baseArea = () => { const r = baseRoom(); return r.w * r.h; };
 
 
 // ------------------------------------------------------------------ tunables
@@ -350,7 +355,7 @@ export const baseArea = () => { const r = baseRoom(); return r.w * r.h; };
 // para o simulador da fase 1 conseguir varrer variantes sem editar código.
 // O jogo nunca escreve neste objeto — só as ferramentas de tools/.
 
-export const TUNING = {
+const TUNING = {
   // efeitos
   speedBase: 85, speedStep: 1.045,
   damageBase: 10, damageStep: 1.07,
@@ -385,17 +390,17 @@ export const TUNING = {
 
 // ------------------------------------------------------------- os oito eixos
 
-export const UPGRADE_IDS = [
+const UPGRADE_IDS = [
   'botas', 'lamina', 'alcance', 'mochila', 'isca', 'tocha', 'companheiro', 'tatica',
 ];
 
-export const UPGRADES = UPGRADE_IDS.map((id) => ({ id, get cost() { return TUNING.cost[id]; } }));
+const UPGRADES = UPGRADE_IDS.map((id) => ({ id, get cost() { return TUNING.cost[id]; } }));
 
-export const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map((u) => [u.id, u]));
+const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map((u) => [u.id, u]));
 
-export const upgradeCap = (id) => TUNING.cost[id].cap;
+const upgradeCap = (id) => TUNING.cost[id].cap;
 
-export function emptyUpgrades() {
+function emptyUpgrades() {
   const o = {};
   for (const id of UPGRADE_IDS) o[id] = 0;
   return o;
@@ -403,21 +408,21 @@ export function emptyUpgrades() {
 
 // ------------------------------------------------------------------- custos
 
-export function upgradeCost(id, level) {
+function upgradeCost(id, level) {
   const c = TUNING.cost[id];
   return Math.ceil(c.base * Math.pow(c.factor, level));
 }
 
 // Custo de comprar `count` níveis a partir de `level`. A soma é feita nível a
 // nível porque cada custo é arredondado para cima antes de somar.
-export function bulkCost(id, level, count) {
+function bulkCost(id, level, count) {
   let total = 0;
   for (let i = 0; i < count; i++) total += upgradeCost(id, level + i);
   return total;
 }
 
 // Quantos níveis cabem em `gold`, respeitando o teto do upgrade.
-export function maxAffordable(id, level, gold) {
+function maxAffordable(id, level, gold) {
   const cap = TUNING.cost[id].cap;
   let count = 0;
   let cost = 0;
@@ -435,38 +440,38 @@ export function maxAffordable(id, level, gold) {
 // Armadilha 1: nenhum ganho multiplicativo pode chegar perto do fator de custo
 // (1,10), senão o retorno por nível fica constante e a taxa explode.
 
-export const moveSpeed = (lv) => TUNING.speedBase * Math.pow(TUNING.speedStep, lv);
-export const damage = (lv) => TUNING.damageBase * Math.pow(TUNING.damageStep, lv);
-export const reach = (lv) => TUNING.reachBase + TUNING.reachStep * lv;
-export const backpack = (lv) => TUNING.backpackBase + TUNING.backpackStep * lv;
-export const heroCount = (lv) => 1 + lv;
+const moveSpeed = (lv) => TUNING.speedBase * Math.pow(TUNING.speedStep, lv);
+const damage = (lv) => TUNING.damageBase * Math.pow(TUNING.damageStep, lv);
+const reach = (lv) => TUNING.reachBase + TUNING.reachStep * lv;
+const backpack = (lv) => TUNING.backpackBase + TUNING.backpackStep * lv;
+const heroCount = (lv) => 1 + lv;
 
-export const spawnInterval = (lv) =>
+const spawnInterval = (lv) =>
   Math.max(TUNING.spawnFloorSec, TUNING.spawnBase * Math.pow(TUNING.spawnStep, lv));
 
-export const roomSize = (lv) => ({
+const roomSize = (lv) => ({
   w: TUNING.roomW + TUNING.roomStepW * lv,
   h: TUNING.roomH + TUNING.roomStepH * lv,
 });
 
-export const tacticFactor = (lv) =>
+const tacticFactor = (lv) =>
   TUNING.tacticFactor[Math.min(lv, TUNING.tacticFactor.length - 1)];
 
-export function roomArea(tochaLv) {
+function roomArea(tochaLv) {
   const r = roomSize(tochaLv);
   return r.w * r.h;
 }
 
 // Sala maior comporta mais inimigos ao mesmo tempo: a oferta cresce com a raiz
 // da área, não com a área, senão a Tocha viraria o único upgrade que importa.
-export const spawnDensity = (tochaLv) => Math.sqrt(roomArea(tochaLv) / baseArea());
+const spawnDensity = (tochaLv) => Math.sqrt(roomArea(tochaLv) / baseArea());
 
-export const effectiveSpawnInterval = (u) => spawnInterval(u.isca) / spawnDensity(u.tocha);
+const effectiveSpawnInterval = (u) => spawnInterval(u.isca) / spawnDensity(u.tocha);
 
 // Teto de inimigos vivos. Existe para o campo não crescer sem limite quando a
 // produção passa o consumo — com o teto batido, a taxa cai para o consumo, que
 // é exatamente o que o min() da fórmula já diz.
-export const enemyCap = (tochaLv) => Math.round(TUNING.enemyCapBase * spawnDensity(tochaLv));
+const enemyCap = (tochaLv) => Math.round(TUNING.enemyCapBase * spawnDensity(tochaLv));
 
 // ------------------------------------------------------------------- andares
 //
@@ -474,23 +479,23 @@ export const enemyCap = (tochaLv) => Math.round(TUNING.enemyCapBase * spawnDensi
 // parede. O custo para descer cresce mais rápido que o valor, e é isso que
 // trava a progressão e dá razão para o prestígio existir.
 
-export const enemyValue = (floor) => Math.pow(TUNING.valueStep, floor - 1);
-export const enemyHp = (floor) => TUNING.hpBase * Math.pow(TUNING.hpStep, floor - 1);
-export const descendCost = (floor) => TUNING.descendBase * Math.pow(TUNING.descendStep, floor - 1);
+const enemyValue = (floor) => Math.pow(TUNING.valueStep, floor - 1);
+const enemyHp = (floor) => TUNING.hpBase * Math.pow(TUNING.hpStep, floor - 1);
+const descendCost = (floor) => TUNING.descendBase * Math.pow(TUNING.descendStep, floor - 1);
 
 // ----------------------------------------------------------------- prestígio
 //
 // Armadilha 2: a essência é calculada pelo andar alcançado, nunca pelo ouro.
 // Ela multiplica o ouro; premiar ouro criaria realimentação sem limite.
 
-export function essenceGain(floor) {
+function essenceGain(floor) {
   if (floor < TUNING.prestigeFloor) return 0;
   return Math.floor(TUNING.essenceBase * Math.pow(TUNING.essenceStep, floor - TUNING.prestigeFloor));
 }
 
-export const essenceMultiplier = (essence) => 1 + essence * TUNING.essencePerPoint;
+const essenceMultiplier = (essence) => 1 + essence * TUNING.essencePerPoint;
 
-export function canPrestige(floor, essence) {
+function canPrestige(floor, essence) {
   const gain = essenceGain(floor);
   return gain >= TUNING.prestigeMin && gain >= TUNING.prestigeRatio * essence;
 }
@@ -500,7 +505,7 @@ export function canPrestige(floor, essence) {
 // Estimativa analítica do ciclo do herói. É o que alimenta o ganho offline e,
 // na fase online, a validação no servidor. Não é a simulação — é o modelo dela.
 
-export function goldPerSecond({ upgrades, floor, essence }) {
+function goldPerSecond({ upgrades, floor, essence }) {
   const room = roomSize(upgrades.tocha);
   const mid = (room.w + room.h) / 2;
 
@@ -525,7 +530,7 @@ export function goldPerSecond({ upgrades, floor, essence }) {
 
 // Qual dos dois lados está segurando a taxa. A interface mostra isso, porque é
 // a informação que faz o jogador entender o que comprar.
-export function bottleneck({ upgrades, floor }) {
+function bottleneck({ upgrades, floor }) {
   const room = roomSize(upgrades.tocha);
   const mid = (room.w + room.h) / 2;
   const distTarget = Math.max(0, tacticFactor(upgrades.tatica) * mid - reach(upgrades.alcance));
@@ -539,25 +544,27 @@ export function bottleneck({ upgrades, floor }) {
 
 // -------------------------------------------------------------- ganho offline
 
-export const OFFLINE_CAP = 4 * 3600;
-export const OFFLINE_RATE = 0.5;
+const OFFLINE_CAP = 4 * 3600;
+const OFFLINE_RATE = 0.5;
 
 // A taxa usada é a congelada no fechamento, não a recalculada agora. É isso que
 // impede comprar tudo, fechar e reabrir para colher a taxa nova.
-export function offlineGain(goldPerSec, seconds) {
+function offlineGain(goldPerSec, seconds) {
   const capped = Math.min(Math.max(0, seconds), OFFLINE_CAP);
   return { seconds: capped, gold: goldPerSec * capped * OFFLINE_RATE };
 }
 
-</script>
-<script type="text/plain" data-modulo="game.js">
+return { TICK, DEPOSIT_TIME, SPAWN_MARGIN, CHEST_CLEAR, baseRoom, baseArea, TUNING, UPGRADE_IDS, UPGRADES, UPGRADE_BY_ID, upgradeCap, moveSpeed, damage, reach, backpack, heroCount, spawnInterval, roomSize, tacticFactor, spawnDensity, effectiveSpawnInterval, enemyCap, enemyValue, enemyHp, descendCost, essenceMultiplier, OFFLINE_CAP, OFFLINE_RATE, emptyUpgrades, upgradeCost, bulkCost, maxAffordable, roomArea, essenceGain, canPrestige, goldPerSecond, bottleneck, offlineGain };
+})();
+
+__mods["game.js"] = (function () {
 // game.js — estado do mundo e o tick que o avança.
 //
 // REGRA: este arquivo não pode referenciar document, window, canvas ou
 // localStorage. Recebe e devolve dados puros, e o estado é serializável em
 // JSON sem perda. É essa lógica que vai rodar no servidor na fase 5.
 
-import * as B from './balance.js';
+const B = __mods["balance.js"];
 
 // --------------------------------------------------------------------- rng
 //
@@ -573,9 +580,9 @@ function rand(s) {
 
 // ------------------------------------------------------------------- estado
 
-export const SAVE_VERSION = 1;
+const SAVE_VERSION = 1;
 
-export function createState(seed = (Date.now() & 0x7fffffff) || 1) {
+function createState(seed = (Date.now() & 0x7fffffff) || 1) {
   const s = {
     version: SAVE_VERSION,
     seed: seed | 0,
@@ -593,17 +600,17 @@ export function createState(seed = (Date.now() & 0x7fffffff) || 1) {
   return s;
 }
 
-export const room = (s) => B.roomSize(s.upgrades.tocha);
+const room = (s) => B.roomSize(s.upgrades.tocha);
 
-export function chest(s) {
+function chest(s) {
   const r = room(s);
   return { x: r.w / 2, y: r.h / 2 };
 }
 
-export const rate = (s) =>
+const rate = (s) =>
   B.goldPerSecond({ upgrades: s.upgrades, floor: s.floor, essence: s.essence });
 
-export const multiplier = (s) => B.essenceMultiplier(s.essence);
+const multiplier = (s) => B.essenceMultiplier(s.essence);
 
 function newHero(s) {
   const c = chest(s);
@@ -612,7 +619,7 @@ function newHero(s) {
 
 // Mantém o número de heróis igual ao nível de Companheiro. Herói novo entra
 // no baú, de mãos vazias.
-export function syncHeroes(s) {
+function syncHeroes(s) {
   const want = B.heroCount(s.upgrades.companheiro);
   while (s.heroes.length < want) s.heroes.push(newHero(s));
   if (s.heroes.length > want) {
@@ -640,7 +647,7 @@ function releaseClaims(s, i) {
 
 // A Tática é o único upgrade que muda comportamento em vez de número. Os
 // níveis são cumulativos: o 4 continua fazendo o que o 3 faz.
-export function pickTarget(s, i) {
+function pickTarget(s, i) {
   const h = s.heroes[i];
   const lv = s.upgrades.tatica;
   // Os mortos deste tick só saem de s.enemies no fim dele, então filtrar aqui
@@ -777,7 +784,7 @@ function stepHero(s, i, dt, k) {
   }
 }
 
-export function tick(s, dt = B.TICK) {
+function tick(s, dt = B.TICK) {
   s.stats.playTime += dt;
   s.stats.runTime += dt;
 
@@ -805,7 +812,7 @@ export function tick(s, dt = B.TICK) {
 
 // ------------------------------------------------------------------ compras
 
-export function buyUpgrade(s, id, count = 1) {
+function buyUpgrade(s, id, count = 1) {
   if (!B.UPGRADE_IDS.includes(id)) return 0;
   const lv = s.upgrades[id];
   const cap = B.upgradeCap(id);
@@ -824,7 +831,7 @@ export function buyUpgrade(s, id, count = 1) {
   return n;
 }
 
-export function buyPreview(s, id, count = 1) {
+function buyPreview(s, id, count = 1) {
   const lv = s.upgrades[id];
   const cap = B.upgradeCap(id);
   if (lv >= cap) return { count: 0, cost: 0, maxed: true };
@@ -837,7 +844,7 @@ export function buyPreview(s, id, count = 1) {
 
 // ------------------------------------------------------------------- andares
 
-export function descend(s) {
+function descend(s) {
   const cost = B.descendCost(s.floor);
   if (s.gold < cost) return false;
 
@@ -858,18 +865,18 @@ export function descend(s) {
 
 // ----------------------------------------------------------------- prestígio
 
-export function canPrestige(s) {
+function canPrestige(s) {
   return B.canPrestige(s.floor, s.essence);
 }
 
-export function prestigeGain(s) {
+function prestigeGain(s) {
   return B.essenceGain(s.floor);
 }
 
 // Reseta ouro, upgrades e andar. Mantém essência, multiplicador e o nível de
 // Tática — tática é conhecimento, e o jogador não deve perder um comportamento
 // que já entendeu.
-export function prestige(s) {
+function prestige(s) {
   if (!canPrestige(s)) return 0;
 
   const gain = prestigeGain(s);
@@ -892,7 +899,7 @@ export function prestige(s) {
 
 // A taxa usada é a congelada no fechamento, nunca a de agora. É isso que impede
 // comprar tudo, fechar e reabrir para colher a taxa nova.
-export function applyOffline(s, seconds, frozenRate) {
+function applyOffline(s, seconds, frozenRate) {
   const gps = Number.isFinite(frozenRate) ? frozenRate : rate(s);
   const r = B.offlineGain(gps, seconds);
   s.gold += r.gold;
@@ -901,16 +908,18 @@ export function applyOffline(s, seconds, frozenRate) {
   return { ...r, rate: gps, capped: seconds > B.OFFLINE_CAP };
 }
 
-</script>
-<script type="text/plain" data-modulo="render.js">
+return { SAVE_VERSION, room, rate, multiplier, createState, chest, syncHeroes, pickTarget, tick, buyUpgrade, buyPreview, descend, canPrestige, prestigeGain, prestige, applyOffline };
+})();
+
+__mods["render.js"] = (function () {
 // render.js — desenha o estado no canvas. Sem estado próprio: tudo que ele
 // sabe chega por parâmetro, e nada do que ele faz volta para o jogo.
 //
 // Visual desta fase: formas geométricas. Círculos para inimigos, quadrados
 // para heróis e baú, barrinhas de vida e de carga.
 
-import * as B from './balance.js';
-import { room, chest } from './game.js';
+const B = __mods["balance.js"];
+const { room, chest } = __mods["game.js"];
 
 const COR = {
   fundo: '#0d0b12',
@@ -931,7 +940,7 @@ const COR = {
 // A sala cresce com a Tocha, e a tela não. O desenho é sempre a sala inteira
 // encaixada no espaço disponível — é isso que faz a Tocha parecer uma escolha
 // e não só um número maior.
-export function fit(s, w, h, pad = 8) {
+function fit(s, w, h, pad = 8) {
   const r = room(s);
   const escala = Math.min((w - pad * 2) / r.w, (h - pad * 2) / r.h);
   return {
@@ -943,7 +952,7 @@ export function fit(s, w, h, pad = 8) {
   };
 }
 
-export function render(ctx, s, w, h) {
+function render(ctx, s, w, h) {
   const v = fit(s, w, h);
   const { escala: k, ox, oy } = v;
   const X = (x) => ox + x * k;
@@ -1049,13 +1058,15 @@ export function render(ctx, s, w, h) {
   }
 }
 
-</script>
-<script type="text/plain" data-modulo="ui.js">
+return { fit, render };
+})();
+
+__mods["ui.js"] = (function () {
 // ui.js — o painel. Atualiza 4 vezes por segundo, não a cada frame: os números
 // não precisam de 60fps e o celular agradece.
 
-import * as B from './balance.js';
-import * as G from './game.js';
+const B = __mods["balance.js"];
+const G = __mods["game.js"];
 
 // Os nomes saem do tema, não da planilha. "Velocidade +6%" é planilha,
 // "Botas Élficas" é jogo — e é isso que faz o upgrade parecer uma coisa.
@@ -1084,7 +1095,7 @@ const TATICAS = [
 // isso "10/s → 10,7/s" vira "10/s → 10/s" e o upgrade parece não fazer nada.
 const enxuga = (t) => t.replace(/\.?0+$/, '').replace('.', ',');
 
-export function num(n) {
+function num(n) {
   if (!isFinite(n)) return '∞';
   if (n === 0) return '0';
   if (n < 100) return enxuga(n.toFixed(2));
@@ -1100,7 +1111,7 @@ export function num(n) {
 
 const dec = (n, casas = 0) => n.toFixed(casas).replace('.', ',');
 
-export function duracao(seg) {
+function duracao(seg) {
   const s = Math.max(0, Math.floor(seg));
   const h = Math.floor(s / 3600);
   const m = Math.floor(s / 60) % 60;
@@ -1131,7 +1142,7 @@ function efeito(id, lv) {
 
 // ------------------------------------------------------------------- montagem
 
-export function montar(raiz, acoes) {
+function montar(raiz, acoes) {
   const el = {};
   const q = (sel) => raiz.querySelector(sel);
 
@@ -1201,7 +1212,7 @@ export function montar(raiz, acoes) {
 
 // ---------------------------------------------------------------- atualização
 
-export function atualizar(ui, s) {
+function atualizar(ui, s) {
   const { el, linhas, lote } = ui;
 
   el.ouro.textContent = num(s.gold);
@@ -1270,7 +1281,7 @@ function primeiroAndarValido(essencia) {
 
 // ------------------------------------------------------------------ relatório
 
-export function relatorio(el, r, aoFechar) {
+function relatorio(el, r, aoFechar) {
   el.querySelector('#rel-tempo').textContent = duracao(r.seconds);
   el.querySelector('#rel-ouro').textContent = num(r.gold);
   el.querySelector('#rel-taxa').textContent = `${num(r.rate)}/s congelado no fechamento, metade paga`;
@@ -1279,8 +1290,10 @@ export function relatorio(el, r, aoFechar) {
   el.querySelector('#rel-ok').onclick = () => { el.hidden = true; aoFechar?.(); };
 }
 
-</script>
-<script type="text/plain" data-modulo="save.js">
+return { num, duracao, montar, atualizar, relatorio };
+})();
+
+__mods["save.js"] = (function () {
 // save.js — persistência isolada atrás de salvar e carregar. Na fase 5 estas
 // duas funções viram chamada de rede e nada mais no jogo precisa mudar.
 
@@ -1289,7 +1302,7 @@ const CHAVE = 'heroi-de-masmorra/v1';
 // A taxa é gravada junto com o estado, congelada no fechamento. É ela que paga
 // o offline: recalcular na volta deixaria o jogador comprar tudo, fechar e
 // reabrir para colher a taxa nova.
-export function salvar(estado, taxa) {
+function salvar(estado, taxa) {
   try {
     localStorage.setItem(CHAVE, JSON.stringify({ em: Date.now(), taxa, estado }));
     return true;
@@ -1298,7 +1311,7 @@ export function salvar(estado, taxa) {
   }
 }
 
-export function carregar() {
+function carregar() {
   try {
     const cru = localStorage.getItem(CHAVE);
     if (!cru) return null;
@@ -1310,7 +1323,7 @@ export function carregar() {
   }
 }
 
-export function apagar() {
+function apagar() {
   try {
     localStorage.removeItem(CHAVE);
   } catch {
@@ -1318,17 +1331,19 @@ export function apagar() {
   }
 }
 
-</script>
-<script type="text/plain" data-modulo="main.js">
+return { salvar, carregar, apagar };
+})();
+
+__mods["main.js"] = (function () {
 // main.js — o laço. Acumulador de tempo com passo fixo e teto de 20 ticks por
 // frame, para o jogo não travar quando o app volta de suspenso com meia hora
 // de atraso na conta.
 
-import { TICK } from './balance.js';
-import * as G from './game.js';
-import { render } from './render.js';
-import * as UI from './ui.js';
-import * as save from './save.js';
+const { TICK } = __mods["balance.js"];
+const G = __mods["game.js"];
+const { render } = __mods["render.js"];
+const UI = __mods["ui.js"];
+const save = __mods["save.js"];
 
 const MAX_TICKS = 20;
 const AUTOSAVE = 10_000;
@@ -1512,19 +1527,9 @@ globalThis.masmorra = {
 
 console.info('ponte de teste: masmorra.ouro(1e6), .andar(9), .nivel("lamina", 40), .offline(6), .zerar()');
 
-</script>
-
-<script type="module">
-  // Cada módulo vira um Blob URL, na ordem de dependência, e os imports são
-  // reescritos para o Blob já criado. Nenhuma transformação de sintaxe.
-  const ordem = ["balance.js","game.js","render.js","ui.js","save.js","main.js"];
-  const urls = {};
-  for (const nome of ordem) {
-    const src = document.querySelector('[data-modulo="' + nome + '"]').textContent
-      .replace(/from\s+'\.\/([\w.-]+\.js)'/g, (_, dep) => "from '" + urls[dep] + "'");
-    urls[nome] = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
-  }
-  await import(urls["main.js"]);
+return {  };
+})();
+})();
 </script>
 </body>
 </html>
